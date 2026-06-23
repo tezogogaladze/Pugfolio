@@ -24,14 +24,10 @@ export interface HeroTransitionArgs {
   useSmoother?: boolean;
 }
 
-/** Scroll share spent in phase 1 (subtle room zoom, no tilt). */
+/** Scroll share spent in phase 1 (subtle room zoom). */
 const PHASE1 = 0.4;
 /** Fraction of the total room zoom reached by the end of phase 1. */
 const PHASE1_ZOOM_SHARE = 0.14;
-/** Peak roll (deg) during phase 2. */
-const TILT_DEG = 5;
-/** Fraction of phase 2 over which tilt rises and returns to 0 (0–1 local p2). */
-const TILT_P2_SPAN = 0.85;
 /** Phase-2 progress at which the tube→section crossfade completes. */
 const CROSSFADE = 0.08;
 /** Progress window over which the glass top layer fades out (end of the dive). */
@@ -106,13 +102,6 @@ function computeLayout(revealScrollEl: HTMLElement): Layout {
   };
 }
 
-function tiltAt(progress: number, reducedMotion: boolean): number {
-  if (reducedMotion || progress <= PHASE1) return 0;
-  const p2 = (progress - PHASE1) / (1 - PHASE1);
-  if (p2 >= TILT_P2_SPAN) return 0;
-  return TILT_DEG * Math.sin(Math.PI * (p2 / TILT_P2_SPAN));
-}
-
 function isCenterScreenActive(tubeEl: HTMLElement | null): boolean {
   const root = tubeEl?.closest(".screenRoot") as HTMLElement | null;
   const st = root?.dataset.state;
@@ -138,9 +127,7 @@ function render(
   args: HeroTransitionArgs,
   dive: { videoStarted: boolean }
 ): void {
-  const { reducedMotion } = args;
   const origin = `${L.box.cx}px ${L.box.cy}px`;
-  const tilt = tiltAt(progress, reducedMotion);
 
   let zoom: number;
   let growth: number;
@@ -150,14 +137,14 @@ function render(
   let diveP = 0;
 
   if (progress <= PHASE1) {
-    // Phase 1 — subtle room zoom only; tilt stays at 0.
+    // Phase 1 — subtle room zoom only.
     const p = progress / PHASE1;
     zoom = 1 + (L.zoomPhase1 - 1) * easeZoom1(p);
     growth = 1;
     revealOpacity = 0;
     tubeOpacity = 1;
   } else {
-    // Phase 2 — clip opens, tilt rolls in, Section 2 scrolls upward with the dive.
+    // Phase 2 — clip opens, Section 2 scrolls upward with the dive.
     const p2 = (progress - PHASE1) / (1 - PHASE1);
     zoom = L.zoomPhase1 + (L.zoomFull - L.zoomPhase1) * easeZoom2(p2);
     growth = 1 + (L.growthEnd - 3.3) * easeGrow(p2);
@@ -171,11 +158,9 @@ function render(
     diveP = easeDiveLayout(p2);
   }
 
-  gsap.set(args.tiltEl, { rotation: tilt, transformOrigin: origin });
   gsap.set(args.zoomEl, { scale: zoom, transformOrigin: origin, force3D: true });
 
   // Glass top layer tracks the reveal exactly: zoom * growth (same as the clip).
-  gsap.set(args.glassTiltEl, { rotation: tilt, transformOrigin: origin });
   gsap.set(args.glassZoomEl, {
     scale: zoom * growth,
     transformOrigin: origin,
@@ -191,12 +176,9 @@ function render(
   const clipScale = L.coverScale * zoom * growth;
   args.revealPathEl.setAttribute(
     "transform",
-    `translate(${L.vpcx} ${L.vpcy}) rotate(${tilt}) scale(${clipScale}) translate(${-L.box.cx} ${-L.box.cy})`
+    `translate(${L.vpcx} ${L.vpcy}) scale(${clipScale}) translate(${-L.box.cx} ${-L.box.cy})`
   );
 
-  // Content stays at 1:1 — the CRT clip is the window. Only tilt applies here.
-  args.revealContentEl.style.transformOrigin = `${L.vpcx}px ${L.vpcy}px`;
-  args.revealContentEl.style.transform = `rotate(${tilt}deg)`;
   args.revealScrollEl.style.transform = `translate3d(0, ${scrollY}px, 0)`;
   args.revealScrollEl.style.setProperty("--dive-p", String(diveP));
   args.revealRootEl.style.opacity = String(revealOpacity);
@@ -244,7 +226,7 @@ function render(
  * Scroll-scrubbed, pinned hero dive: zoom through the exact screen-05 outline
  * and reveal the REAL Section 2 (no replica, removed from normal flow), which
  * scrolls upward from the bottom during the dive. Glass top layer persists
- * until the dive completes. Tilt lives in phase 2 during the main dive.
+ * until the dive completes.
  */
 export function setupHeroTransition(args: HeroTransitionArgs): () => void {
   let layout = computeLayout(args.revealScrollEl);

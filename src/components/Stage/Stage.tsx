@@ -4,16 +4,14 @@ import "./Stage.css";
 
 interface StageProps {
   children: ReactNode;
-  /** GSAP rotates this layer (the room roll). React never writes to it. */
+  /** Optional wrapper ref (legacy layer; no transform applied). */
   tiltRef?: RefObject<HTMLDivElement>;
 }
 
 /**
- * React owns `.stageCover` (translate + cover-fit scale). GSAP owns two nested
- * layers with distinct properties so transforms never overwrite each other:
- *   `.stageTilt` — rotation (room roll)
- *   `.stageZoom` — scale (the dive), forwarded ref
- * Both are stage-sized (2560x1440) with the same centroid origin.
+ * React owns `.stageCover` (translate + cover-fit scale). GSAP owns `.stageZoom`
+ * (scale / the dive), forwarded ref. Both are stage-sized (2560x1440) with the
+ * same centroid origin.
  */
 const Stage = forwardRef<HTMLDivElement, StageProps>(function Stage(
   { children, tiltRef },

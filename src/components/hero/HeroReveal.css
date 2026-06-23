@@ -10,7 +10,7 @@
   /* clip-path: url(...) set inline */
 }
 
-/* Full-viewport layer — only tilt is applied here; the clip is the CRT window.
+/* Full-viewport layer inside the CRT clip window.
    Opaque room fill so the clip is never see-through onto the zooming room. */
 .heroReveal__content {
   position: absolute;
