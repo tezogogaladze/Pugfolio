@@ -28,10 +28,12 @@ interface ScreenProps {
   soundOn: boolean;
   /** Render order, used to stagger video warm-up so loads don't all collide. */
   index: number;
+  /** Disabled on mobile/touch — falls back to the cheap color-bars reel. */
+  enableVideo: boolean;
 }
 
 const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
-  { config, heroInView, reducedMotion, soundOn, index },
+  { config, heroInView, reducedMotion, soundOn, index, enableVideo },
   ref
 ) {
   const { state, requestOn, requestOff, animDone } = useScreenMachine("off");
@@ -178,7 +180,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
     }
   }, [state, reducedMotion, box.cx, box.cy, animDone]);
 
-  const hasVideo = Boolean(config.videoSrc) && !videoFailed;
+  const hasVideo = enableVideo && Boolean(config.videoSrc) && !videoFailed;
 
   // Warm-up: while the hero is in view, fetch + decode each reel's first frame
   // so hover plays instantly with no black flash. We DON'T play here — only the

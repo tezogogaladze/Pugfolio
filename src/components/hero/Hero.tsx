@@ -21,6 +21,8 @@ interface HeroProps {
   reducedMotion: boolean;
   /** Global sound state — when true, screen videos are unmuted. */
   soundOn: boolean;
+  /** Disabled on mobile/touch to avoid multi-video memory crashes. */
+  enableVideo: boolean;
 }
 
 export default function Hero({
@@ -29,6 +31,7 @@ export default function Hero({
   throughGlassRef,
   reducedMotion,
   soundOn,
+  enableVideo,
 }: HeroProps) {
   const heroRef = useRef<HTMLElement>(null);
   const heroInView = useInView(heroRef, "200px");
@@ -52,6 +55,7 @@ export default function Hero({
             reducedMotion={reducedMotion}
             soundOn={soundOn}
             index={index}
+            enableVideo={enableVideo}
           />
         ))}
 

@@ -5,6 +5,7 @@ import SoundToggle from "@/components/ui/SoundToggle";
 import Loader from "@/components/ui/Loader";
 import type { ScreenHandle } from "@/components/Screen/Screen";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { usePreloadAssets } from "@/hooks/usePreloadAssets";
 import { createSmoother } from "@/scroll/smoother";
 import { setupHeroTransition } from "@/scroll/heroTransition";
@@ -21,9 +22,17 @@ const IMAGE_URLS = [getBackgroundSrc(), OVERLAY_SRC];
 
 export default function App() {
   const reducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+  // On mobile/touch run the lightweight path: no videos, and the heavy
+  // pinned zoom/blur is skipped (treated like reduced motion).
+  const enableVideo = !isMobile;
+  const liteMotion = reducedMotion || isMobile;
   const [soundOn, setSoundOn] = useState(false);
 
-  const { progress, done } = usePreloadAssets(VIDEO_URLS, IMAGE_URLS);
+  const { progress, done } = usePreloadAssets(
+    enableVideo ? VIDEO_URLS : [],
+    IMAGE_URLS
+  );
   const [showLoader, setShowLoader] = useState(true);
   useEffect(() => {
     if (!done) return;
@@ -42,7 +51,7 @@ export default function App() {
   }, [reducedMotion]);
 
   useLayoutEffect(() => {
-    const { cleanup: cleanupSmoother } = createSmoother(reducedMotion);
+    const { cleanup: cleanupSmoother } = createSmoother(liteMotion);
 
     const heroEl = heroSectionRef.current?.querySelector(
       ".hero"
@@ -55,7 +64,7 @@ export default function App() {
         stageEl: stageRef.current,
         throughGlassEl: throughGlassRef.current,
         centerHandle: centerRef.current,
-        reducedMotion,
+        reducedMotion: liteMotion,
       });
     }
 
@@ -63,7 +72,7 @@ export default function App() {
       cleanupTransition();
       cleanupSmoother();
     };
-  }, [reducedMotion]);
+  }, [liteMotion]);
 
   return (
     <>
@@ -74,8 +83,9 @@ export default function App() {
               stageRef={stageRef}
               centerRef={centerRef}
               throughGlassRef={throughGlassRef}
-              reducedMotion={reducedMotion}
+              reducedMotion={liteMotion}
               soundOn={soundOn}
+              enableVideo={enableVideo}
             />
           </div>
           <main>
