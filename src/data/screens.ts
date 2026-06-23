@@ -66,7 +66,7 @@ export const SCREENS: ScreenConfig[] = [
   {
     id: "tv-screen-01",
     position: "top-left",
-    videoSrc: "/assets/videos/screen-4.mp4",
+    videoSrc: "/assets/videos/tv-1.mp4",
     poster: null,
     featured: false,
     tint: "#ffb347",
@@ -75,7 +75,7 @@ export const SCREENS: ScreenConfig[] = [
   {
     id: "tv-screen-02",
     position: "top-mid",
-    videoSrc: "/assets/videos/screen-6.mp4",
+    videoSrc: "/assets/videos/tv-2.mp4",
     poster: null,
     featured: false,
     tint: "#4fd0e3",
@@ -84,7 +84,7 @@ export const SCREENS: ScreenConfig[] = [
   {
     id: "tv-screen-03",
     position: "top-right",
-    videoSrc: "/assets/videos/screen-1.mp4",
+    videoSrc: "/assets/videos/tv-3.mp4",
     poster: null,
     featured: false,
     tint: "#ff7a9c",
@@ -93,7 +93,7 @@ export const SCREENS: ScreenConfig[] = [
   {
     id: "tv-screen-04",
     position: "bottom-left",
-    videoSrc: "/assets/videos/screen-5.mp4",
+    videoSrc: "/assets/videos/tv-4.mp4",
     poster: null,
     featured: false,
     tint: "#9be870",
@@ -102,7 +102,7 @@ export const SCREENS: ScreenConfig[] = [
   {
     id: "tv-screen-05",
     position: "center",
-    videoSrc: "/assets/videos/screen-3.mp4",
+    videoSrc: "/assets/videos/tv-5.mp4",
     poster: null,
     featured: true,
     tint: "#ffb347",
@@ -111,7 +111,7 @@ export const SCREENS: ScreenConfig[] = [
   {
     id: "tv-screen-06",
     position: "bottom-right",
-    videoSrc: "/assets/videos/screen-2.mp4",
+    videoSrc: "/assets/videos/tv-6.mp4",
     poster: null,
     featured: false,
     tint: "#c79bff",
