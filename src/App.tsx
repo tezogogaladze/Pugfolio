@@ -2,14 +2,34 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Hero from "@/components/hero/Hero";
 import Sections from "@/components/sections/Sections";
 import SoundToggle from "@/components/ui/SoundToggle";
+import Loader from "@/components/ui/Loader";
 import type { ScreenHandle } from "@/components/Screen/Screen";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { usePreloadAssets } from "@/hooks/usePreloadAssets";
 import { createSmoother } from "@/scroll/smoother";
 import { setupHeroTransition } from "@/scroll/heroTransition";
+import {
+  SCREENS,
+  OVERLAY_SRC,
+  getBackgroundSrc,
+} from "@/data/screens";
+
+const VIDEO_URLS = SCREENS.map((s) => s.videoSrc).filter(
+  (v): v is string => Boolean(v)
+);
+const IMAGE_URLS = [getBackgroundSrc(), OVERLAY_SRC];
 
 export default function App() {
   const reducedMotion = useReducedMotion();
   const [soundOn, setSoundOn] = useState(false);
+
+  const { progress, done } = usePreloadAssets(VIDEO_URLS, IMAGE_URLS);
+  const [showLoader, setShowLoader] = useState(true);
+  useEffect(() => {
+    if (!done) return;
+    const t = window.setTimeout(() => setShowLoader(false), 650);
+    return () => window.clearTimeout(t);
+  }, [done]);
 
   const stageRef = useRef<HTMLDivElement>(null);
   const centerRef = useRef<ScreenHandle>(null);
@@ -64,6 +84,7 @@ export default function App() {
         </div>
       </div>
       <SoundToggle on={soundOn} onToggle={() => setSoundOn((v) => !v)} />
+      {showLoader && <Loader progress={progress} hiding={done} />}
     </>
   );
 }
