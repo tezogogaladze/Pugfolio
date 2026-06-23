@@ -43,18 +43,18 @@ export default function Hero({
   if (!interactive) {
     return (
       <section className="hero hero--static" aria-label="The CRT Room">
-        <img
+        {/* CSS background, not <img>, so the browser exposes no
+            "Copy Image / Copy Image Address" context-menu options. */}
+        <div
           className="hero__static-img"
-          src={getBackgroundSrc()}
-          alt="A dim, overgrown room with six dead CRT televisions."
-          draggable={false}
+          role="img"
+          aria-label="A dim, overgrown room with six dead CRT televisions."
+          style={{ backgroundImage: `url(${getBackgroundSrc()})` }}
         />
-        <img
+        <div
           className="hero__static-img hero__static-glass"
-          src={OVERLAY_SRC}
-          alt=""
           aria-hidden="true"
-          draggable={false}
+          style={{ backgroundImage: `url(${OVERLAY_SRC})` }}
         />
         <div className="hero__ambience" />
       </section>
@@ -65,11 +65,12 @@ export default function Hero({
     <section className="hero" ref={heroRef} aria-label="The CRT Room">
       <ClipDefs />
       <Stage ref={stageRef}>
-        <img
+        {/* CSS background, not <img>, so right-click offers no image copy/save. */}
+        <div
           className="stage__layer stage__bg"
-          src={getBackgroundSrc()}
-          alt="A dim, overgrown room with six dead CRT televisions."
-          draggable={false}
+          role="img"
+          aria-label="A dim, overgrown room with six dead CRT televisions."
+          style={{ backgroundImage: `url(${getBackgroundSrc()})` }}
         />
         {SCREENS.map((config, index) => (
           <Screen
@@ -86,13 +87,12 @@ export default function Hero({
 
         {/* Single full-frame glass/glare/grime overlay, 1:1 over the stage and
             on top of every screen, so it scales with the room during the zoom.
-            Transparent screen interiors let the videos show through. */}
-        <img
+            Transparent screen interiors let the videos show through. A CSS
+            background (not <img>) so it offers no image copy/save menu. */}
+        <div
           className="stage__overlay"
-          src={OVERLAY_SRC}
-          alt=""
           aria-hidden="true"
-          draggable={false}
+          style={{ backgroundImage: `url(${OVERLAY_SRC})` }}
         />
       </Stage>
 

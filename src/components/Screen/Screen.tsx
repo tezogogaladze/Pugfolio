@@ -264,6 +264,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
                 preload="none"
                 poster={config.poster ?? undefined}
                 onError={() => setVideoFailed(true)}
+                onContextMenu={(e) => e.preventDefault()}
               >
                 <source src={config.videoSrc!} type="video/mp4" />
               </video>
@@ -273,6 +274,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
                 src={config.poster}
                 alt=""
                 aria-hidden="true"
+                onContextMenu={(e) => e.preventDefault()}
               />
             ) : (
               <ColorBars label={config.featured ? "FEATURED" : "REEL"} />

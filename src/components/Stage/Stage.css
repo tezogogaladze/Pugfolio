@@ -33,11 +33,12 @@
 }
 
 .stage__bg {
-  object-fit: cover;
   width: 2560px;
   height: 1440px;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   user-select: none;
-  -webkit-user-drag: none;
 }
 
 /* Single full-frame glass overlay, laid 1:1 on top of all screens. Pointer
@@ -47,6 +48,9 @@
   inset: 0;
   width: 2560px;
   height: 1440px;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   pointer-events: none;
   z-index: 2;
 }
