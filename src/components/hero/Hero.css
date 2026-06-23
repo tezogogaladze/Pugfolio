@@ -7,6 +7,23 @@
   background: var(--bg-room);
 }
 
+/* Lightweight static room for mobile/touch: two cover images, no stage
+   transform and no filtered/blended per-screen layers. Both assets are
+   full-frame 16:9 so object-fit:cover keeps them aligned. */
+.hero--static .hero__static-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.hero--static .hero__static-glass {
+  pointer-events: none;
+}
+
 /* Slow vignette "breathe" over the whole room (disabled by reduced motion). */
 .hero__ambience {
   position: absolute;

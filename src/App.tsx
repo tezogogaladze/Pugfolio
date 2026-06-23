@@ -23,14 +23,15 @@ const IMAGE_URLS = [getBackgroundSrc(), OVERLAY_SRC];
 export default function App() {
   const reducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
-  // On mobile/touch run the lightweight path: no videos, and the heavy
-  // pinned zoom/blur is skipped (treated like reduced motion).
-  const enableVideo = !isMobile;
+  // On mobile/touch run the lightweight static path: no interactive CRT stage
+  // (avoids the GPU-memory crash from many large composited layers), no videos,
+  // and the heavy pinned zoom/blur is skipped (treated like reduced motion).
+  const interactive = !isMobile;
   const liteMotion = reducedMotion || isMobile;
   const [soundOn, setSoundOn] = useState(false);
 
   const { progress, done } = usePreloadAssets(
-    enableVideo ? VIDEO_URLS : [],
+    interactive ? VIDEO_URLS : [],
     IMAGE_URLS
   );
   const [showLoader, setShowLoader] = useState(true);
@@ -85,7 +86,7 @@ export default function App() {
               throughGlassRef={throughGlassRef}
               reducedMotion={liteMotion}
               soundOn={soundOn}
-              enableVideo={enableVideo}
+              interactive={interactive}
             />
           </div>
           <main>
@@ -93,7 +94,9 @@ export default function App() {
           </main>
         </div>
       </div>
-      <SoundToggle on={soundOn} onToggle={() => setSoundOn((v) => !v)} />
+      {interactive && (
+        <SoundToggle on={soundOn} onToggle={() => setSoundOn((v) => !v)} />
+      )}
       {showLoader && <Loader progress={progress} hiding={done} />}
     </>
   );

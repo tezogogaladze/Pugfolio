@@ -55,12 +55,12 @@ svg {
   outline-offset: 3px;
 }
 
-/* ScrollSmoother required wrappers */
+/* ScrollSmoother required wrappers. No persistent will-change here: ScrollSmoother
+   manages its own promotion on desktop, and forcing it would allocate a large
+   backing store on mobile (where smoothing is disabled) — a memory risk. */
 #smooth-wrapper {
-  /* will-change set in JS only while smoothing is active */
 }
 #smooth-content {
-  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -21,8 +21,12 @@ interface HeroProps {
   reducedMotion: boolean;
   /** Global sound state — when true, screen videos are unmuted. */
   soundOn: boolean;
-  /** Disabled on mobile/touch to avoid multi-video memory crashes. */
-  enableVideo: boolean;
+  /**
+   * Desktop only. On mobile/touch we render a lightweight STATIC room (two
+   * cover images, no stage transform, no per-screen filter/blend layers) to
+   * avoid the GPU memory crash from dozens of large composited layers.
+   */
+  interactive: boolean;
 }
 
 export default function Hero({
@@ -31,10 +35,31 @@ export default function Hero({
   throughGlassRef,
   reducedMotion,
   soundOn,
-  enableVideo,
+  interactive,
 }: HeroProps) {
   const heroRef = useRef<HTMLElement>(null);
   const heroInView = useInView(heroRef, "200px");
+
+  if (!interactive) {
+    return (
+      <section className="hero hero--static" aria-label="The CRT Room">
+        <img
+          className="hero__static-img"
+          src={getBackgroundSrc()}
+          alt="A dim, overgrown room with six dead CRT televisions."
+          draggable={false}
+        />
+        <img
+          className="hero__static-img hero__static-glass"
+          src={OVERLAY_SRC}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+        />
+        <div className="hero__ambience" />
+      </section>
+    );
+  }
 
   return (
     <section className="hero" ref={heroRef} aria-label="The CRT Room">
@@ -55,7 +80,7 @@ export default function Hero({
             reducedMotion={reducedMotion}
             soundOn={soundOn}
             index={index}
-            enableVideo={enableVideo}
+            enableVideo={interactive}
           />
         ))}
 
