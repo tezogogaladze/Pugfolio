@@ -70,7 +70,7 @@ export const SECTIONS: Section[] = [
     id: "about",
     type: "about",
     eyebrow: "Inside the tube",
-    title: "Editor / Colourist",
+    title: "Video Editor / Pug in Disguise",
     reveal: "rise",
     body: [
       "I cut films that feel like they were always meant to move that way.",

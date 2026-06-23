@@ -1,50 +1,52 @@
-import { useRef, type RefObject } from "react";
+import { type RefObject } from "react";
 import Stage from "@/components/Stage/Stage";
 import ClipDefs from "@/components/crt/ClipDefs";
-import Screen, { type ScreenHandle } from "@/components/Screen/Screen";
+import Screen from "@/components/Screen/Screen";
+import HeroReveal from "@/components/hero/HeroReveal";
+import { useStageScale } from "@/hooks/useStageScale";
 import {
   SCREENS,
-  CENTER_SCREEN_ID,
   getBackgroundSrc,
   OVERLAY_SRC,
 } from "@/data/screens";
-import { useInView } from "@/hooks/useInViewVideo";
 import "./Hero.css";
 
 interface HeroProps {
-  /** Inner 2560x1440 .stage element — GSAP drives its zoom transform. */
-  stageRef: RefObject<HTMLDivElement>;
-  /** Imperative handle for the center screen (force-on during transition). */
-  centerRef: RefObject<ScreenHandle>;
-  /** Overlay element faded in by the "through the glass" timeline. */
-  throughGlassRef: RefObject<HTMLDivElement>;
+  sectionRef: RefObject<HTMLElement>;
+  tiltRef: RefObject<HTMLDivElement>;
+  zoomRef: RefObject<HTMLDivElement>;
+  glassTiltRef: RefObject<HTMLDivElement>;
+  glassZoomRef: RefObject<HTMLDivElement>;
+  glassRootRef: RefObject<HTMLDivElement>;
+  revealRootRef: RefObject<HTMLDivElement>;
+  revealContentRef: RefObject<HTMLDivElement>;
+  revealScrollRef: RefObject<HTMLDivElement>;
+  revealPathRef: RefObject<SVGPathElement>;
   reducedMotion: boolean;
-  /** Global sound state — when true, screen videos are unmuted. */
   soundOn: boolean;
-  /**
-   * Desktop only. On mobile/touch we render a lightweight STATIC room (two
-   * cover images, no stage transform, no per-screen filter/blend layers) to
-   * avoid the GPU memory crash from dozens of large composited layers.
-   */
   interactive: boolean;
 }
 
 export default function Hero({
-  stageRef,
-  centerRef,
-  throughGlassRef,
+  sectionRef,
+  tiltRef,
+  zoomRef,
+  glassTiltRef,
+  glassZoomRef,
+  glassRootRef,
+  revealRootRef,
+  revealContentRef,
+  revealScrollRef,
+  revealPathRef,
   reducedMotion,
   soundOn,
   interactive,
 }: HeroProps) {
-  const heroRef = useRef<HTMLElement>(null);
-  const heroInView = useInView(heroRef, "200px");
+  const { scale, offsetX, offsetY } = useStageScale();
 
   if (!interactive) {
     return (
       <section className="hero hero--static" aria-label="The CRT Room">
-        {/* CSS background, not <img>, so the browser exposes no
-            "Copy Image / Copy Image Address" context-menu options. */}
         <div
           className="hero__static-img"
           role="img"
@@ -61,43 +63,52 @@ export default function Hero({
     );
   }
 
+  const coverTransform = `translate3d(${offsetX}px, ${offsetY}px, 0) scale(${scale})`;
+
   return (
-    <section className="hero" ref={heroRef} aria-label="The CRT Room">
+    <section className="hero" ref={sectionRef} aria-label="The CRT Room">
       <ClipDefs />
-      <Stage ref={stageRef}>
-        {/* CSS background, not <img>, so right-click offers no image copy/save. */}
+      <Stage ref={zoomRef} tiltRef={tiltRef}>
         <div
           className="stage__layer stage__bg"
           role="img"
           aria-label="A dim, overgrown room with six dead CRT televisions."
           style={{ backgroundImage: `url(${getBackgroundSrc()})` }}
         />
-        {SCREENS.map((config, index) => (
+        {SCREENS.map((config) => (
           <Screen
             key={config.id}
-            ref={config.id === CENTER_SCREEN_ID ? centerRef : undefined}
             config={config}
-            heroInView={heroInView}
             reducedMotion={reducedMotion}
             soundOn={soundOn}
-            index={index}
             enableVideo={interactive}
           />
         ))}
-
-        {/* Single full-frame glass/glare/grime overlay, 1:1 over the stage and
-            on top of every screen, so it scales with the room during the zoom.
-            Transparent screen interiors let the videos show through. A CSS
-            background (not <img>) so it offers no image copy/save menu. */}
-        <div
-          className="stage__overlay"
-          aria-hidden="true"
-          style={{ backgroundImage: `url(${OVERLAY_SRC})` }}
-        />
       </Stage>
 
+      <HeroReveal
+        rootRef={revealRootRef}
+        contentRef={revealContentRef}
+        scrollRef={revealScrollRef}
+        pathRef={revealPathRef}
+      />
+
+      <div className="hero__glassTop" ref={glassRootRef} aria-hidden="true">
+        <div className="stageCover" style={{ transform: coverTransform }}>
+          <div className="stageTilt" ref={glassTiltRef}>
+            <div className="stageZoom" ref={glassZoomRef}>
+              <div className="stage">
+                <div
+                  className="stage__overlay"
+                  style={{ backgroundImage: `url(${OVERLAY_SRC})` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="hero__ambience" />
-      <div className="hero__throughGlass" ref={throughGlassRef} />
       <p className="hero__hint">Hover the screens — scroll to enter</p>
     </section>
   );

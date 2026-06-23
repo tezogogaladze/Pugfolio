@@ -1,0 +1,81 @@
+/* The real Section 2, clipped to the exact screen-05 outline during the dive.
+   Sits above the room but below the glass top layer; hidden until crossfade. */
+.heroReveal {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* clip-path: url(...) set inline */
+}
+
+/* Full-viewport layer — only tilt is applied here; the clip is the CRT window.
+   Opaque room fill so the clip is never see-through onto the zooming room. */
+.heroReveal__content {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-room);
+  will-change: transform;
+}
+
+/* Inner scroller — translateY driven per-frame so the copy rises from below. */
+.heroReveal__scroll {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  /* 0 = small centered dive copy, 1 = full section typography */
+  --dive-p: 0;
+}
+
+/* One viewport-centred screen of Section 2. Lands dead-centre at dive end. */
+.heroReveal__section {
+  min-height: 100vh;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8vh clamp(20px, 6vw, 72px);
+  border-top: none;
+  background: var(--bg-room);
+}
+
+.heroReveal__section .section__eyebrow {
+  margin-bottom: 0.75rem;
+  font-size: calc(
+    0.62rem + (0.78rem - 0.62rem) * var(--dive-p)
+  );
+}
+
+.heroReveal__section .section__title {
+  margin: 0 0 1.25rem;
+  max-width: 18ch;
+  font-size: calc(
+    clamp(1.35rem, 4.2vw, 2.1rem) +
+      (clamp(2.6rem, 7vw, 5.2rem) - clamp(1.35rem, 4.2vw, 2.1rem)) * var(--dive-p)
+  );
+  line-height: 1.02;
+}
+
+.heroReveal__section .section__body {
+  max-width: calc(
+    34ch + (58ch - 34ch) * var(--dive-p)
+  );
+  margin-inline: auto;
+  font-size: calc(
+    clamp(0.82rem, 2.1vw, 1rem) +
+      (clamp(1.05rem, 1.6vw, 1.35rem) - clamp(0.82rem, 2.1vw, 1rem)) * var(--dive-p)
+  );
+  line-height: 1.55;
+  text-align: center;
+}
+
+.heroReveal__section .section__body p {
+  margin: 0 0 0.85rem;
+}

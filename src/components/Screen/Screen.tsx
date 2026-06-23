@@ -12,6 +12,7 @@ import { measureScreen } from "@/components/crt/geometry";
 import CrtFx from "@/components/crt/CrtFx";
 import ColorBars from "@/components/crt/ColorBars";
 import { useScreenMachine } from "./useScreenMachine";
+import { playTvPowerSfx } from "@/audio/tvPowerSfx";
 import "./Screen.css";
 
 export interface ScreenHandle {
@@ -21,19 +22,15 @@ export interface ScreenHandle {
 
 interface ScreenProps {
   config: ScreenConfig;
-  /** Hero visible in viewport — videos only ever play when true. */
-  heroInView: boolean;
   reducedMotion: boolean;
   /** Global sound state — when true, this screen's video is unmuted. */
   soundOn: boolean;
-  /** Render order, used to stagger video warm-up so loads don't all collide. */
-  index: number;
   /** Disabled on mobile/touch — falls back to the cheap color-bars reel. */
   enableVideo: boolean;
 }
 
 const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
-  { config, heroInView, reducedMotion, soundOn, index, enableVideo },
+  { config, reducedMotion, soundOn, enableVideo },
   ref
 ) {
   const { state, requestOn, requestOff, animDone } = useScreenMachine("off");
@@ -73,6 +70,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
     gsap.killTweensOf([tube, flash, dot]);
 
     if (state === "powering-on") {
+      if (soundOn && enableVideo) playTvPowerSfx("on");
       if (reducedMotion) {
         gsap.set(tube, {
           scaleX: 1,
@@ -124,6 +122,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
           0
         );
     } else if (state === "powering-off") {
+      if (soundOn && enableVideo) playTvPowerSfx("off");
       const resetVideo = () => {
         const v = videoRef.current;
         if (v) {
@@ -178,41 +177,36 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
           ">-0.04"
         );
     }
-  }, [state, reducedMotion, box.cx, box.cy, animDone]);
+  }, [state, reducedMotion, soundOn, enableVideo, box.cx, box.cy, animDone]);
 
   const hasVideo = enableVideo && Boolean(config.videoSrc) && !videoFailed;
 
-  // Warm-up: while the hero is in view, fetch + decode each reel's first frame
-  // so hover plays instantly with no black flash. We DON'T play here — only the
-  // hovered screen plays — so we never decode/play all six at once. Staggered by
-  // render order (featured center first) to avoid a load stampede on page load.
+  // Warm-up: decode the first frame only when this screen powers on (hover/focus),
+  // never proactively for the featured center — that was loading frame 0 while the
+  // tube looked "off", then the dive animation forced the tube visible on scroll.
   const warmedRef = useRef(false);
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || !hasVideo || warmedRef.current || !heroInView) return;
+    if (!v || !hasVideo || warmedRef.current) return;
+    if (state !== "on" && state !== "powering-on") return;
     warmedRef.current = true;
-    const delay = config.featured ? 0 : (index + 1) * 180;
-    const id = window.setTimeout(() => {
-      v.preload = "auto";
-      // Only kick a load if nothing has started yet — if the user already
-      // hovered, play() is loading it and we must not reset mid-playback.
-      if (v.readyState === 0) {
-        try {
-          v.load();
-        } catch {
-          /* ignore */
-        }
+    v.preload = "auto";
+    if (v.readyState === 0) {
+      try {
+        v.load();
+      } catch {
+        /* ignore */
       }
-    }, delay);
-    return () => window.clearTimeout(id);
-  }, [heroInView, hasVideo, config.featured, index]);
+    }
+  }, [state, hasVideo]);
 
-  // Video play gating: only when active AND hero in view.
+  // Video play gating: powered-on screens play. heroInView is NOT used here —
+  // IntersectionObserver reports false while ScrollTrigger pins the hero, which
+  // was pausing the center reel mid-dive even when hovered.
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !config.videoSrc) return;
-    const active =
-      (state === "on" || state === "powering-on") && heroInView;
+    const active = state === "on" || state === "powering-on";
     if (active) {
       v.play().catch(() => {
         /* autoplay rejection — poster stays */
@@ -220,7 +214,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
     } else {
       v.pause();
     }
-  }, [state, heroInView, config.videoSrc]);
+  }, [state, config.videoSrc]);
 
   // Mute follows the global sound toggle. Set via the property (not just the
   // attribute, which React doesn't reliably reflect onto the media element).

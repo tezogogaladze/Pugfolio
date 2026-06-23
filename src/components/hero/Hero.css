@@ -3,7 +3,7 @@
   width: 100%;
   height: 100vh;
   height: 100svh;
-  overflow: hidden;
+  /* overflow on .stageViewport — not here, or ScrollTrigger pin breaks */
   background: var(--bg-room);
 }
 
@@ -22,6 +22,16 @@
 }
 
 .hero--static .hero__static-glass {
+  pointer-events: none;
+}
+
+/* Glass top layer — mirrors the room's cover transform, sits above the reveal
+   so the screen glass persists until the full dive. Faded out by the timeline. */
+.hero__glassTop {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -51,21 +61,6 @@
   50% {
     opacity: 1;
   }
-}
-
-/* "Through the glass" dissolve overlay driven by the scroll timeline. */
-.hero__throughGlass {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(
-    60% 60% at 47.8% 56.2%,
-    rgba(255, 255, 255, 0.9) 0%,
-    var(--accent) 22%,
-    var(--bg-room) 70%
-  );
 }
 
 .hero__hint {

@@ -1,20 +1,22 @@
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, type ReactNode, type RefObject } from "react";
 import { useStageScale } from "@/hooks/useStageScale";
 import "./Stage.css";
 
 interface StageProps {
   children: ReactNode;
+  /** GSAP rotates this layer (the room roll). React never writes to it. */
+  tiltRef?: RefObject<HTMLDivElement>;
 }
 
 /**
- * The single fixed 2560x1440 stage. The cover transform (scale to fill the
- * viewport, centered) is applied to an outer wrapper that React controls on
- * resize. The forwarded ref points at the inner `.stage` element, whose
- * transform is left untouched so GSAP can drive the hero zoom on it without
- * fighting React re-renders.
+ * React owns `.stageCover` (translate + cover-fit scale). GSAP owns two nested
+ * layers with distinct properties so transforms never overwrite each other:
+ *   `.stageTilt` — rotation (room roll)
+ *   `.stageZoom` — scale (the dive), forwarded ref
+ * Both are stage-sized (2560x1440) with the same centroid origin.
  */
 const Stage = forwardRef<HTMLDivElement, StageProps>(function Stage(
-  { children },
+  { children, tiltRef },
   ref
 ) {
   const { scale, offsetX, offsetY } = useStageScale();
@@ -27,8 +29,10 @@ const Stage = forwardRef<HTMLDivElement, StageProps>(function Stage(
           transform: `translate3d(${offsetX}px, ${offsetY}px, 0) scale(${scale})`,
         }}
       >
-        <div className="stage" ref={ref}>
-          {children}
+        <div className="stageTilt" ref={tiltRef}>
+          <div className="stageZoom" ref={ref}>
+            <div className="stage">{children}</div>
+          </div>
         </div>
       </div>
     </div>

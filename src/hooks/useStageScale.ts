@@ -14,10 +14,10 @@ export interface StageTransform {
  * transform on the stage element so the whole composition scales as one unit.
  */
 export function useStageScale(): StageTransform {
-  const [t, setT] = useState<StageTransform>(() => compute());
+  const [t, setT] = useState<StageTransform>(() => computeStageTransform());
 
   useLayoutEffect(() => {
-    const update = () => setT(compute());
+    const update = () => setT(computeStageTransform());
     update();
 
     const ro = new ResizeObserver(update);
@@ -34,7 +34,7 @@ export function useStageScale(): StageTransform {
   return t;
 }
 
-function compute(): StageTransform {
+export function computeStageTransform(): StageTransform {
   if (typeof window === "undefined") {
     return { scale: 1, offsetX: 0, offsetY: 0 };
   }

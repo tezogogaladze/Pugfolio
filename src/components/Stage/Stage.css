@@ -6,7 +6,7 @@
   background: var(--bg-room);
 }
 
-/* React-controlled: object-fit:cover transform for the 2560x1440 stage. */
+/* React-controlled cover fit (translate + cover scale). */
 .stageCover {
   position: absolute;
   top: 0;
@@ -15,14 +15,31 @@
   will-change: transform;
 }
 
-/* The fixed authoring coordinate space. GSAP owns THIS element's transform
-   during the hero zoom (scale + rotate around the screen-05 centroid), which
-   is why the cover transform lives on the parent — no conflict. */
+/* GSAP-owned roll layer — rotation only, centroid origin. */
+.stageTilt {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2560px;
+  height: 1440px;
+  will-change: transform;
+}
+
+/* GSAP-owned zoom layer — scale only, centroid origin. */
+.stageZoom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2560px;
+  height: 1440px;
+  will-change: transform;
+}
+
+/* Fixed authoring coordinate space for clipped screens + layers. */
 .stage {
   position: relative;
   width: 2560px;
   height: 1440px;
-  transform-origin: center center;
 }
 
 .stage__layer {

@@ -47,6 +47,18 @@
   object-fit: cover;
 }
 
+/* Decoded first frame must not leak when the screen FSM is off — the dive
+   timeline can temporarily override tube opacity during the zoom. */
+.screenRoot[data-state="off"] .screen__reel,
+.screenRoot[data-state="powering-off"] .screen__reel {
+  background: transparent;
+}
+
+.screenRoot[data-state="off"] .screen__reel video,
+.screenRoot[data-state="powering-off"] .screen__reel video {
+  visibility: hidden;
+}
+
 .screen__reel img.screen__poster {
   position: absolute;
   inset: 0;

@@ -1,33 +1,97 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Hero from "@/components/hero/Hero";
 import Sections from "@/components/sections/Sections";
 import SoundToggle from "@/components/ui/SoundToggle";
 import Loader from "@/components/ui/Loader";
-import type { ScreenHandle } from "@/components/Screen/Screen";
+import ScrollRoot from "@/components/ScrollRoot";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { usePreloadAssets } from "@/hooks/usePreloadAssets";
-import { createSmoother } from "@/scroll/smoother";
-import { setupHeroTransition } from "@/scroll/heroTransition";
-import {
-  SCREENS,
-  OVERLAY_SRC,
-  getBackgroundSrc,
-} from "@/data/screens";
+import { refreshScroll, useScrollSystem } from "@/scroll/useScrollSystem";
+import { preloadTvPowerSfx } from "@/audio/tvPowerSfx";
+import { CENTER_SCREEN_ID, SCREENS, OVERLAY_SRC, getBackgroundSrc } from "@/data/screens";
 
 const VIDEO_URLS = SCREENS.map((s) => s.videoSrc).filter(
   (v): v is string => Boolean(v)
 );
 const IMAGE_URLS = [getBackgroundSrc(), OVERLAY_SRC];
 
+/** Lives inside the body-portaled smooth-content so ScrollSmoother can find its wrapper. */
+function ScrollContent({
+  interactive,
+  smooth,
+  liteMotion,
+  soundOn,
+  scrollReady,
+}: {
+  interactive: boolean;
+  smooth: boolean;
+  liteMotion: boolean;
+  soundOn: boolean;
+  scrollReady: boolean;
+}) {
+  const heroRef = useRef<HTMLElement>(null);
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<HTMLDivElement>(null);
+  const glassTiltRef = useRef<HTMLDivElement>(null);
+  const glassZoomRef = useRef<HTMLDivElement>(null);
+  const glassRootRef = useRef<HTMLDivElement>(null);
+  const revealRootRef = useRef<HTMLDivElement>(null);
+  const revealContentRef = useRef<HTMLDivElement>(null);
+  const revealScrollRef = useRef<HTMLDivElement>(null);
+  const revealPathRef = useRef<SVGPathElement>(null);
+
+  useScrollSystem({
+    enabled: interactive,
+    smooth,
+    reducedMotion: liteMotion,
+    centerScreenId: CENTER_SCREEN_ID,
+    scrollReady,
+    refs: {
+      heroRef,
+      tiltRef,
+      zoomRef,
+      glassTiltRef,
+      glassZoomRef,
+      glassRootRef,
+      revealRootRef,
+      revealContentRef,
+      revealScrollRef,
+      revealPathRef,
+    },
+  });
+
+  return (
+    <>
+      <Hero
+        sectionRef={heroRef}
+        tiltRef={tiltRef}
+        zoomRef={zoomRef}
+        glassTiltRef={glassTiltRef}
+        glassZoomRef={glassZoomRef}
+        glassRootRef={glassRootRef}
+        revealRootRef={revealRootRef}
+        revealContentRef={revealContentRef}
+        revealScrollRef={revealScrollRef}
+        revealPathRef={revealPathRef}
+        reducedMotion={liteMotion}
+        soundOn={soundOn}
+        interactive={interactive}
+      />
+      <main>
+        <Sections />
+      </main>
+    </>
+  );
+}
+
 export default function App() {
   const reducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
-  // On mobile/touch run the lightweight static path: no interactive CRT stage
-  // (avoids the GPU-memory crash from many large composited layers), no videos,
-  // and the heavy pinned zoom/blur is skipped (treated like reduced motion).
   const interactive = !isMobile;
   const liteMotion = reducedMotion || isMobile;
+  // Smooth scroll is independent of reduced-motion — that flag only eases animations.
+  const smoothScroll = interactive && !isMobile;
   const [soundOn, setSoundOn] = useState(false);
 
   const { progress, done } = usePreloadAssets(
@@ -35,65 +99,44 @@ export default function App() {
     IMAGE_URLS
   );
   const [showLoader, setShowLoader] = useState(true);
+
   useEffect(() => {
     if (!done) return;
     const t = window.setTimeout(() => setShowLoader(false), 650);
     return () => window.clearTimeout(t);
   }, [done]);
 
-  const stageRef = useRef<HTMLDivElement>(null);
-  const centerRef = useRef<ScreenHandle>(null);
-  const throughGlassRef = useRef<HTMLDivElement>(null);
-  const heroSectionRef = useRef<HTMLDivElement>(null);
-
-  // Reflect reduced-motion on the root for CSS (.rm disables flicker etc).
   useEffect(() => {
     document.documentElement.classList.toggle("rm", reducedMotion);
   }, [reducedMotion]);
 
-  useLayoutEffect(() => {
-    const { cleanup: cleanupSmoother } = createSmoother(liteMotion);
+  useEffect(() => {
+    if (interactive) preloadTvPowerSfx();
+  }, [interactive]);
 
-    const heroEl = heroSectionRef.current?.querySelector(
-      ".hero"
-    ) as HTMLElement | null;
-
-    let cleanupTransition = () => {};
-    if (heroEl && stageRef.current && throughGlassRef.current) {
-      cleanupTransition = setupHeroTransition({
-        heroEl,
-        stageEl: stageRef.current,
-        throughGlassEl: throughGlassRef.current,
-        centerHandle: centerRef.current,
-        reducedMotion: liteMotion,
-      });
-    }
-
+  // Page height changes after assets decode — smoother must recalculate body height.
+  useEffect(() => {
+    if (!smoothScroll || !done) return;
+    requestAnimationFrame(refreshScroll);
+    const t1 = window.setTimeout(refreshScroll, 100);
+    const t2 = window.setTimeout(refreshScroll, 400);
     return () => {
-      cleanupTransition();
-      cleanupSmoother();
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
     };
-  }, [liteMotion]);
+  }, [smoothScroll, done]);
 
   return (
     <>
-      <div id="smooth-wrapper">
-        <div id="smooth-content">
-          <div ref={heroSectionRef}>
-            <Hero
-              stageRef={stageRef}
-              centerRef={centerRef}
-              throughGlassRef={throughGlassRef}
-              reducedMotion={liteMotion}
-              soundOn={soundOn}
-              interactive={interactive}
-            />
-          </div>
-          <main>
-            <Sections />
-          </main>
-        </div>
-      </div>
+      <ScrollRoot>
+        <ScrollContent
+          interactive={interactive}
+          smooth={smoothScroll}
+          liteMotion={liteMotion}
+          soundOn={soundOn}
+          scrollReady={done}
+        />
+      </ScrollRoot>
       {interactive && (
         <SoundToggle on={soundOn} onToggle={() => setSoundOn((v) => !v)} />
       )}

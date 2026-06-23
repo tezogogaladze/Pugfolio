@@ -35,7 +35,6 @@ body {
 }
 
 body {
-  /* ScrollSmoother manages scroll; keep native scroll as the fallback. */
   overflow-x: hidden;
 }
 
@@ -55,13 +54,8 @@ svg {
   outline-offset: 3px;
 }
 
-/* ScrollSmoother required wrappers. No persistent will-change here: ScrollSmoother
-   manages its own promotion on desktop, and forcing it would allocate a large
-   backing store on mobile (where smoothing is disabled) — a memory risk. */
-#smooth-wrapper {
-}
-#smooth-content {
-}
+/* ScrollSmoother styles #smooth-wrapper / #smooth-content itself at runtime.
+   Do NOT set overflow/position/height here — it breaks the smoother's scroll. */
 
 @media (prefers-reduced-motion: reduce) {
   * {
