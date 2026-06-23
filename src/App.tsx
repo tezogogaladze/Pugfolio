@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Hero from "@/components/hero/Hero";
 import Sections from "@/components/sections/Sections";
 import SoundToggle from "@/components/ui/SoundToggle";
@@ -11,10 +11,9 @@ import { refreshScroll, useScrollSystem } from "@/scroll/useScrollSystem";
 import { preloadTvPowerSfx } from "@/audio/tvPowerSfx";
 import { CENTER_SCREEN_ID, SCREENS, OVERLAY_SRC, getBackgroundSrc } from "@/data/screens";
 
-const VIDEO_URLS = SCREENS.map((s) => s.videoSrc).filter(
-  (v): v is string => Boolean(v)
-);
 const IMAGE_URLS = [getBackgroundSrc(), OVERLAY_SRC];
+const HERO_VIDEO_COUNT = SCREENS.filter((s) => Boolean(s.videoSrc)).length;
+const LOADER_ASSET_COUNT = IMAGE_URLS.length + HERO_VIDEO_COUNT;
 
 /** Lives inside the body-portaled smooth-content so ScrollSmoother can find its wrapper. */
 function ScrollContent({
@@ -23,12 +22,14 @@ function ScrollContent({
   liteMotion,
   soundOn,
   scrollReady,
+  onScreenVideoBuffered,
 }: {
   interactive: boolean;
   smooth: boolean;
   liteMotion: boolean;
   soundOn: boolean;
   scrollReady: boolean;
+  onScreenVideoBuffered?: () => void;
 }) {
   const heroRef = useRef<HTMLElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
@@ -77,6 +78,7 @@ function ScrollContent({
         reducedMotion={liteMotion}
         soundOn={soundOn}
         interactive={interactive}
+        onScreenVideoBuffered={onScreenVideoBuffered}
       />
       <main>
         <Sections />
@@ -93,18 +95,39 @@ export default function App() {
   // Smooth scroll is independent of reduced-motion — that flag only eases animations.
   const smoothScroll = interactive && !isMobile;
   const [soundOn, setSoundOn] = useState(false);
+  const [videosBuffered, setVideosBuffered] = useState(0);
+  const [forceShow, setForceShow] = useState(false);
 
-  const { progress, done } = usePreloadAssets(
-    interactive ? VIDEO_URLS : [],
-    IMAGE_URLS
-  );
+  const handleScreenVideoBuffered = useCallback(() => {
+    setVideosBuffered((n) => n + 1);
+  }, []);
+
+  const {
+    loaded: imagesLoaded,
+    done: imagesDone,
+  } = usePreloadAssets(IMAGE_URLS);
+
+  const videosReady =
+    !interactive || videosBuffered >= HERO_VIDEO_COUNT;
+  const assetsReady = imagesDone && videosReady;
+  const readyToShow = assetsReady || forceShow;
+  const loadedAssets =
+    imagesLoaded + (interactive ? videosBuffered : 0);
+  const progress =
+    LOADER_ASSET_COUNT === 0 ? 1 : loadedAssets / LOADER_ASSET_COUNT;
+
   const [showLoader, setShowLoader] = useState(true);
 
   useEffect(() => {
-    if (!done) return;
+    if (!readyToShow) return;
     const t = window.setTimeout(() => setShowLoader(false), 650);
     return () => window.clearTimeout(t);
-  }, [done]);
+  }, [readyToShow]);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setForceShow(true), 20000);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("rm", reducedMotion);
@@ -116,7 +139,7 @@ export default function App() {
 
   // Page height changes after assets decode — smoother must recalculate body height.
   useEffect(() => {
-    if (!smoothScroll || !done) return;
+    if (!smoothScroll || !readyToShow) return;
     requestAnimationFrame(refreshScroll);
     const t1 = window.setTimeout(refreshScroll, 100);
     const t2 = window.setTimeout(refreshScroll, 400);
@@ -124,7 +147,7 @@ export default function App() {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, [smoothScroll, done]);
+  }, [smoothScroll, readyToShow]);
 
   return (
     <>
@@ -134,13 +157,16 @@ export default function App() {
           smooth={smoothScroll}
           liteMotion={liteMotion}
           soundOn={soundOn}
-          scrollReady={done}
+          scrollReady={readyToShow}
+          onScreenVideoBuffered={
+            interactive ? handleScreenVideoBuffered : undefined
+          }
         />
       </ScrollRoot>
       {interactive && (
         <SoundToggle on={soundOn} onToggle={() => setSoundOn((v) => !v)} />
       )}
-      {showLoader && <Loader progress={progress} hiding={done} />}
+      {showLoader && <Loader progress={progress} hiding={readyToShow} />}
     </>
   );
 }

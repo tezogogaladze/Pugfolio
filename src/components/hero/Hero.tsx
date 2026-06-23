@@ -25,6 +25,7 @@ interface HeroProps {
   reducedMotion: boolean;
   soundOn: boolean;
   interactive: boolean;
+  onScreenVideoBuffered?: () => void;
 }
 
 export default function Hero({
@@ -41,6 +42,7 @@ export default function Hero({
   reducedMotion,
   soundOn,
   interactive,
+  onScreenVideoBuffered,
 }: HeroProps) {
   const { scale, offsetX, offsetY } = useStageScale();
 
@@ -82,6 +84,7 @@ export default function Hero({
             reducedMotion={reducedMotion}
             soundOn={soundOn}
             enableVideo={interactive}
+            onBuffered={onScreenVideoBuffered}
           />
         ))}
       </Stage>

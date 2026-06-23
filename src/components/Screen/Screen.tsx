@@ -12,6 +12,7 @@ import CrtFx from "@/components/crt/CrtFx";
 import ColorBars from "@/components/crt/ColorBars";
 import { useScreenMachine } from "./useScreenMachine";
 import { playTvPowerSfx } from "@/audio/tvPowerSfx";
+import { bufferVideo, playVideoWhenReady } from "@/utils/videoBuffer";
 import "./Screen.css";
 
 export interface ScreenHandle {
@@ -26,10 +27,12 @@ interface ScreenProps {
   soundOn: boolean;
   /** Disabled on mobile/touch — falls back to the cheap color-bars reel. */
   enableVideo: boolean;
+  /** Fired once this screen's reel is buffered (loader gate). */
+  onBuffered?: () => void;
 }
 
 const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
-  { config, reducedMotion, soundOn, enableVideo },
+  { config, reducedMotion, soundOn, enableVideo, onBuffered },
   ref
 ) {
   const { state, requestOn, requestOff } = useScreenMachine("off");
@@ -57,30 +60,41 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
     prevState.current = state;
   }, [state, soundOn, enableVideo]);
 
+  // Buffer the reel on mount so the loader can wait on real <video> elements.
+  useEffect(() => {
+    if (!enableVideo || !config.videoSrc) return;
+    const v = videoRef.current;
+    if (!v) return;
+
+    const ac = new AbortController();
+    let reported = false;
+    const report = () => {
+      if (reported) return;
+      reported = true;
+      onBuffered?.();
+    };
+
+    bufferVideo(v, ac.signal).then(() => {
+      if (!ac.signal.aborted) report();
+    });
+
+    return () => {
+      ac.abort();
+    };
+  }, [enableVideo, config.videoSrc, onBuffered]);
+
   // Instant reel playback — no power-on/off animation delay.
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !config.videoSrc) return;
 
-    if (isOn) {
-      v.preload = "auto";
-      if (v.readyState === 0) {
-        try {
-          v.load();
-        } catch {
-          /* ignore */
-        }
-      }
-      v.play().catch(() => {
-        /* autoplay rejection — poster stays */
-      });
-    } else {
-      v.pause();
-      try {
-        v.currentTime = 0;
-      } catch {
-        /* ignore */
-      }
+    if (isOn) return playVideoWhenReady(v);
+
+    v.pause();
+    try {
+      v.currentTime = 0;
+    } catch {
+      /* ignore */
     }
   }, [isOn, config.videoSrc]);
 
@@ -115,7 +129,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
                 muted
                 loop
                 playsInline
-                preload="none"
+                preload="auto"
                 poster={config.poster ?? undefined}
                 onError={() => setVideoFailed(true)}
                 onContextMenu={(e) => e.preventDefault()}
