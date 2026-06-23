@@ -1,0 +1,95 @@
+/* Each screen is a full-stage layer (so userSpaceOnUse clips register at the
+   2560x1440 origin). The root is unclipped; only the inner .screen tube is
+   clipped to the path, leaving the glass overlay free to bleed onto the bezel. */
+.screenRoot {
+  position: absolute;
+  inset: 0;
+  width: 2560px;
+  height: 1440px;
+  /* The root is a full-stage layer with no clip, so it must not capture pointer
+     events outside the screen shape (only the clipped hit button below does). */
+  pointer-events: none;
+}
+
+/* Clipped tube container. The reel media inside is positioned to the screen's
+   bbox so per-screen-sized encodes fill the visible hole exactly. The clip is
+   userSpaceOnUse in 2560x1440 space, so this element MUST stay at the stage
+   origin (full stage) to register. */
+.screen {
+  position: absolute;
+  inset: 0;
+  width: 2560px;
+  height: 1440px;
+  /* drop-shadow follows the clip alpha -> shaped outer glow */
+  will-change: filter;
+}
+
+.screen__tube {
+  position: absolute;
+  inset: 0;
+  width: 2560px;
+  height: 1440px;
+  /* transform-origin set inline to the screen centroid (collapse anchor) */
+  will-change: transform, filter;
+  backface-visibility: hidden;
+}
+
+/* The reel media (video or color bars), positioned to the screen bbox. */
+.screen__reel {
+  position: absolute;
+  overflow: hidden;
+  background: #050505;
+}
+
+.screen__reel video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.screen__reel img.screen__poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* White power-on flash. */
+.screen__flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Bright collapsing dot for power-off. */
+.screen__dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 24px 8px rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Interaction surface: focusable, covers the screen bbox for hover/tap/focus.
+   Re-enables pointer events (the root disables them) and is clip-pathed so only
+   the screen shape is interactive. */
+.screen__hit {
+  position: absolute;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.screen__hit:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}

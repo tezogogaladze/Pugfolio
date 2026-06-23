@@ -1,0 +1,20 @@
+node_modules
+dist
+dist-ssr
+*.tsbuildinfo
+*.local
+.DS_Store
+.vite
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Heavy duplicate of Background/final.avif (use the AVIF instead)
+Background/final.png
+
+# OS / thumbnail junk
+Thumbs.db
+*.db
+
+# Photoshop source masters
+*.psd

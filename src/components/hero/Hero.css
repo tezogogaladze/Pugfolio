@@ -1,0 +1,79 @@
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--bg-room);
+}
+
+/* Slow vignette "breathe" over the whole room (disabled by reduced motion). */
+.hero__ambience {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background: radial-gradient(
+    130% 130% at 50% 46%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+  animation: hero-breathe 9s ease-in-out infinite;
+}
+
+.rm .hero__ambience {
+  animation: none;
+}
+
+@keyframes hero-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* "Through the glass" dissolve overlay driven by the scroll timeline. */
+.hero__throughGlass {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    60% 60% at 47.8% 56.2%,
+    rgba(255, 255, 255, 0.9) 0%,
+    var(--accent) 22%,
+    var(--bg-room) 70%
+  );
+}
+
+.hero__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 4vh;
+  transform: translateX(-50%);
+  z-index: 7;
+  font-size: 0.8rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  pointer-events: none;
+  animation: hint-pulse 2.6s ease-in-out infinite;
+}
+
+.rm .hero__hint {
+  animation: none;
+}
+
+@keyframes hint-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}

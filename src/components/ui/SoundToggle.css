@@ -1,0 +1,53 @@
+.soundToggle {
+  position: fixed;
+  top: clamp(16px, 2.4vw, 32px);
+  right: clamp(16px, 2.4vw, 32px);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(10, 9, 7, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1;
+  transition: color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.soundToggle:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(10, 9, 7, 0.7);
+}
+
+.soundToggle[data-on="true"] {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.soundToggle svg {
+  flex: 0 0 auto;
+  display: block;
+}
+
+.soundToggle__label {
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .soundToggle__label {
+    display: none;
+  }
+  .soundToggle {
+    padding: 0.6rem;
+  }
+}

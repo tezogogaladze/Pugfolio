@@ -1,0 +1,70 @@
+:root {
+  /* Retro-cinema neutral system (rebrand via these vars) */
+  --bg-room: #0a0907;
+  --ink: #ece6d8;
+  --ink-dim: #9a917f;
+  --accent: #ffb347; /* warm phosphor / amber */
+  --accent-cool: #4fd0e3; /* secondary phosphor */
+  --glow: 0 0 28px rgba(255, 179, 71, 0.45);
+
+  --font-display: "Bebas Neue", "Anton", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Authoring coordinate space — every layer lives here */
+  --stage-w: 2560;
+  --stage-h: 1440;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-room);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  /* ScrollSmoother manages scroll; keep native scroll as the fallback. */
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+img,
+video,
+svg {
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ScrollSmoother required wrappers */
+#smooth-wrapper {
+  /* will-change set in JS only while smoothing is active */
+}
+#smooth-content {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}

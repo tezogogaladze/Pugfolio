@@ -1,0 +1,155 @@
+.section {
+  position: relative;
+  min-height: 100vh;
+  padding: 14vh clamp(24px, 8vw, 180px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--bg-room);
+}
+
+.section__eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 1rem;
+}
+
+.section__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.6rem, 7vw, 6rem);
+  line-height: 0.96;
+  letter-spacing: -0.01em;
+  margin: 0 0 2rem;
+}
+
+.section__body {
+  max-width: 60ch;
+  font-size: clamp(1.05rem, 1.6vw, 1.4rem);
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.section__body p {
+  margin: 0 0 1rem;
+}
+
+/* Reveal-on-enter */
+.reveal {
+  opacity: 0;
+  will-change: opacity, transform;
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal[data-reveal="rise"] {
+  transform: translateY(40px);
+}
+.reveal[data-reveal="fade"] {
+  transform: none;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.rm .reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* Work grid */
+.workGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: clamp(12px, 2vw, 28px);
+}
+
+.workCard {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #121110;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transform: translateZ(0);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s ease;
+}
+.workCard:hover,
+.workCard:focus-visible {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5), var(--glow);
+}
+.workCard__meta {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+}
+.workCard__title {
+  font-weight: 600;
+}
+.workCard__role {
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Showreel */
+.showreel__frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: min(100%, 1100px);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.showreel__frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Clients + stats */
+.clients__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(2rem, 6vw, 6rem);
+  margin-top: 2rem;
+}
+.stat__value {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1;
+  color: var(--accent);
+}
+.stat__label {
+  font-size: 0.8rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* Contact */
+.contact__email {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 5rem);
+  color: var(--ink);
+}
+.contact__socials {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}

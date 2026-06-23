@@ -1,0 +1,52 @@
+/* The viewport clips the cover-scaled stage. */
+.stageViewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg-room);
+}
+
+/* React-controlled: object-fit:cover transform for the 2560x1440 stage. */
+.stageCover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* The fixed authoring coordinate space. GSAP owns THIS element's transform
+   during the hero zoom (scale + rotate around the screen-05 centroid), which
+   is why the cover transform lives on the parent — no conflict. */
+.stage {
+  position: relative;
+  width: 2560px;
+  height: 1440px;
+  transform-origin: center center;
+}
+
+.stage__layer {
+  position: absolute;
+  inset: 0;
+  width: 2560px;
+  height: 1440px;
+}
+
+.stage__bg {
+  object-fit: cover;
+  width: 2560px;
+  height: 1440px;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Single full-frame glass overlay, laid 1:1 on top of all screens. Pointer
+   events pass through to the screens' hit areas beneath it. */
+.stage__overlay {
+  position: absolute;
+  inset: 0;
+  width: 2560px;
+  height: 1440px;
+  pointer-events: none;
+  z-index: 2;
+}

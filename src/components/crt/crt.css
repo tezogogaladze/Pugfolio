@@ -1,0 +1,169 @@
+/* Shared CRT visual-FX primitives. All animation is transform/opacity/filter
+   only so layers can be GPU-promoted. Flicker is disabled under reduced motion
+   (handled by the .rm modifier set on the stage root). */
+
+.crtFx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  will-change: opacity, filter;
+}
+
+/* Scanlines: a tiled horizontal line pattern that rolls slowly. */
+.crtFx__scanlines {
+  position: absolute;
+  inset: -2%;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.35) 3px,
+    rgba(0, 0, 0, 0.35) 4px
+  );
+  background-size: 100% 4px;
+  opacity: 0.55;
+  animation: crt-scanroll 8s linear infinite;
+}
+
+/* RGB split / chromatic phosphor fringe. */
+.crtFx__rgb {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 0, 64, 0.06),
+    rgba(0, 255, 128, 0.04),
+    rgba(64, 128, 255, 0.06)
+  );
+  mix-blend-mode: screen;
+  filter: blur(0.5px);
+}
+
+/* Vignette + bloom toward edges. */
+.crtFx__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 120% at 50% 50%,
+    rgba(0, 0, 0, 0) 55%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  mix-blend-mode: multiply;
+}
+
+/* Idle per-screen flicker, very faint. */
+.crtFx__flicker {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.03);
+  animation: crt-flicker 5.5s steps(60) infinite;
+}
+
+@keyframes crt-scanroll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(4px);
+  }
+}
+
+@keyframes crt-flicker {
+  0%,
+  100% {
+    opacity: 0.02;
+  }
+  3% {
+    opacity: 0.12;
+  }
+  6% {
+    opacity: 0.03;
+  }
+  9% {
+    opacity: 0.08;
+  }
+  12% {
+    opacity: 0.02;
+  }
+  50% {
+    opacity: 0.05;
+  }
+  53% {
+    opacity: 0.1;
+  }
+}
+
+.rm .crtFx__scanlines,
+.rm .crtFx__flicker {
+  animation: none;
+}
+
+/* ---- Placeholder color-bars reel (stands in for real video) ---- */
+.colorBars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #000;
+}
+
+.colorBars__bars {
+  flex: 1 1 75%;
+  display: flex;
+}
+
+.colorBars__bars > span {
+  flex: 1;
+}
+
+.colorBars__lower {
+  flex: 1 1 25%;
+  display: flex;
+}
+
+.colorBars__lower > span {
+  flex: 1;
+}
+
+/* Moving broadcast sweep — transform only. */
+.colorBars__sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-120%);
+  animation: bars-sweep 6.5s ease-in-out infinite;
+}
+
+.colorBars__label {
+  position: absolute;
+  left: 6%;
+  bottom: 8%;
+  font-family: var(--font-sans);
+  font-size: 64px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
+  mix-blend-mode: difference;
+}
+
+@keyframes bars-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(640%);
+  }
+}
+
+.rm .colorBars__sweep {
+  animation: none;
+}
