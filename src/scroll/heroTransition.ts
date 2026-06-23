@@ -113,7 +113,7 @@ function tiltAt(progress: number, reducedMotion: boolean): number {
 function isCenterScreenActive(tubeEl: HTMLElement | null): boolean {
   const root = tubeEl?.closest(".screenRoot") as HTMLElement | null;
   const st = root?.dataset.state;
-  return st === "on" || st === "powering-on";
+  return st === "on";
 }
 
 /** Progress below this = hero at rest; center tube returns to Screen FSM. */

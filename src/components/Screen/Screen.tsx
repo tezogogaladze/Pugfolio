@@ -6,7 +6,6 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import gsap from "gsap";
 import type { ScreenConfig } from "@/data/screens";
 import { measureScreen } from "@/components/crt/geometry";
 import CrtFx from "@/components/crt/CrtFx";
@@ -23,7 +22,7 @@ export interface ScreenHandle {
 interface ScreenProps {
   config: ScreenConfig;
   reducedMotion: boolean;
-  /** Global sound state — when true, this screen's video is unmuted. */
+  /** Global sound state — when true, reel + TV click SFX are audible. */
   soundOn: boolean;
   /** Disabled on mobile/touch — falls back to the cheap color-bars reel. */
   enableVideo: boolean;
@@ -33,191 +32,58 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
   { config, reducedMotion, soundOn, enableVideo },
   ref
 ) {
-  const { state, requestOn, requestOff, animDone } = useScreenMachine("off");
+  const { state, requestOn, requestOff } = useScreenMachine("off");
 
   const [box] = useState(() => measureScreen(config.id));
 
-  const screenRef = useRef<HTMLDivElement>(null);
   const tubeRef = useRef<HTMLDivElement>(null);
-  const flashRef = useRef<HTMLDivElement>(null);
-  const dotRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoFailed, setVideoFailed] = useState(false);
+  const prevState = useRef(state);
 
   useImperativeHandle(ref, () => ({ requestOn, requestOff }), [
     requestOn,
     requestOff,
   ]);
 
-  const applyGlow = (strength: number) => {
-    const el = screenRef.current;
-    if (!el) return;
-    el.style.filter =
-      strength <= 0
-        ? "none"
-        : `drop-shadow(0 0 ${28 * strength}px ${config.tint}) drop-shadow(0 0 ${
-            64 * strength
-          }px ${config.tint})`;
-  };
-
-  // Drive GSAP timelines off machine state transitions.
-  useEffect(() => {
-    const tube = tubeRef.current;
-    const flash = flashRef.current;
-    const dot = dotRef.current;
-    if (!tube || !flash || !dot) return;
-
-    gsap.killTweensOf([tube, flash, dot]);
-
-    if (state === "powering-on") {
-      if (soundOn && enableVideo) playTvPowerSfx("on");
-      if (reducedMotion) {
-        gsap.set(tube, {
-          scaleX: 1,
-          scaleY: 1,
-          opacity: 1,
-          filter: "none",
-        });
-        gsap.set(flash, { opacity: 0 });
-        applyGlow(0.45);
-        animDone();
-        return;
-      }
-      const glow = { v: 0 };
-      const tl = gsap.timeline({ onComplete: animDone });
-      gsap.set(tube, {
-        scaleX: 1,
-        scaleY: 1,
-        opacity: 1,
-        transformOrigin: `${box.cx}px ${box.cy}px`,
-      });
-      tl.fromTo(
-        flash,
-        { opacity: 0 },
-        { opacity: 0.9, duration: 0.06, ease: "power2.out" }
-      )
-        .to(flash, { opacity: 0, duration: 0.5, ease: "power2.in" }, ">-0.02")
-        .fromTo(
-          tube,
-          {
-            scaleY: 0.008,
-            filter: "brightness(2.6) contrast(0.4) saturate(0.5)",
-          },
-          {
-            scaleY: 1,
-            filter: "brightness(1) contrast(1) saturate(1)",
-            duration: 0.42,
-            ease: "power3.out",
-          },
-          0
-        )
-        .to(
-          glow,
-          {
-            v: 0.45,
-            duration: 0.5,
-            ease: "power2.out",
-            onUpdate: () => applyGlow(glow.v),
-          },
-          0
-        );
-    } else if (state === "powering-off") {
-      if (soundOn && enableVideo) playTvPowerSfx("off");
-      const resetVideo = () => {
-        const v = videoRef.current;
-        if (v) {
-          v.pause();
-          try {
-            v.currentTime = 0;
-          } catch {
-            /* ignore */
-          }
-        }
-      };
-      if (reducedMotion) {
-        gsap.set(tube, { opacity: 0 });
-        applyGlow(0);
-        resetVideo();
-        animDone();
-        return;
-      }
-      const glow = { v: 0.45 };
-      const tl = gsap.timeline({
-        onComplete: () => {
-          resetVideo();
-          animDone();
-        },
-      });
-      gsap.set(tube, { transformOrigin: `${box.cx}px ${box.cy}px` });
-      gsap.set(dot, { left: box.cx - 2, top: box.cy - 2, scale: 1 });
-      tl.to(tube, {
-        filter: "brightness(3) contrast(1.5) saturate(0.6)",
-        duration: 0.08,
-      })
-        .to(
-          tube,
-          { scaleY: 0.004, duration: 0.18, ease: "power3.in" },
-          "<0.01"
-        )
-        .to(dot, { opacity: 1, duration: 0.06 }, ">-0.04")
-        .to(tube, { scaleX: 0.001, duration: 0.2, ease: "power3.in" }, "<")
-        .to(
-          glow,
-          {
-            v: 0,
-            duration: 0.3,
-            onUpdate: () => applyGlow(glow.v),
-          },
-          0
-        )
-        .to(tube, { opacity: 0, duration: 0.08 }, ">-0.02")
-        .to(
-          dot,
-          { opacity: 0, scale: 0.2, duration: 0.35, ease: "power2.in" },
-          ">-0.04"
-        );
-    }
-  }, [state, reducedMotion, soundOn, enableVideo, box.cx, box.cy, animDone]);
-
   const hasVideo = enableVideo && Boolean(config.videoSrc) && !videoFailed;
+  const isOn = state === "on";
 
-  // Warm-up: decode the first frame only when this screen powers on (hover/focus),
-  // never proactively for the featured center — that was loading frame 0 while the
-  // tube looked "off", then the dive animation forced the tube visible on scroll.
-  const warmedRef = useRef(false);
+  // TV power clicks — only when global sound is on.
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v || !hasVideo || warmedRef.current) return;
-    if (state !== "on" && state !== "powering-on") return;
-    warmedRef.current = true;
-    v.preload = "auto";
-    if (v.readyState === 0) {
-      try {
-        v.load();
-      } catch {
-        /* ignore */
-      }
-    }
-  }, [state, hasVideo]);
+    if (!enableVideo || !soundOn || prevState.current === state) return;
+    if (state === "on") playTvPowerSfx("on");
+    if (state === "off" && prevState.current === "on") playTvPowerSfx("off");
+    prevState.current = state;
+  }, [state, soundOn, enableVideo]);
 
-  // Video play gating: powered-on screens play. heroInView is NOT used here —
-  // IntersectionObserver reports false while ScrollTrigger pins the hero, which
-  // was pausing the center reel mid-dive even when hovered.
+  // Instant reel playback — no power-on/off animation delay.
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !config.videoSrc) return;
-    const active = state === "on" || state === "powering-on";
-    if (active) {
+
+    if (isOn) {
+      v.preload = "auto";
+      if (v.readyState === 0) {
+        try {
+          v.load();
+        } catch {
+          /* ignore */
+        }
+      }
       v.play().catch(() => {
         /* autoplay rejection — poster stays */
       });
     } else {
       v.pause();
+      try {
+        v.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
     }
-  }, [state, config.videoSrc]);
+  }, [isOn, config.videoSrc]);
 
-  // Mute follows the global sound toggle. Set via the property (not just the
-  // attribute, which React doesn't reliably reflect onto the media element).
   useEffect(() => {
     const v = videoRef.current;
     if (v) v.muted = !soundOn;
@@ -230,24 +96,18 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
     height: box.height,
   };
 
-  // Tap path for touch/no-hover devices: toggles power. (Sound is controlled
-  // globally by the SoundToggle.) Hover/focus remain independent triggers.
   const handleActivate = () => {
-    const isOn = state === "on" || state === "powering-on";
     if (isOn) requestOff();
     else requestOn();
   };
 
   return (
     <div className="screenRoot" data-screen={config.id} data-state={state}>
-      {/* Clipped tube: the video + CRT FX collapse within the screen path.
-          The shaped outer glow (drop-shadow on this element) follows the clip. */}
       <div
         className="screen"
-        ref={screenRef}
         style={{ clipPath: `url(#${config.id})` }}
       >
-        <div className="screen__tube" ref={tubeRef} style={{ opacity: 0 }}>
+        <div className="screen__tube" ref={tubeRef}>
           <div className="screen__reel" style={reelStyle}>
             {hasVideo ? (
               <video
@@ -275,10 +135,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
             )}
           </div>
           <CrtFx flicker={!reducedMotion} />
-          <div className="screen__flash" ref={flashRef} />
         </div>
-
-        <div className="screen__dot" ref={dotRef} />
       </div>
 
       <button
@@ -294,7 +151,7 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
         aria-label={`Power on screen ${config.position}${
           config.featured ? " (featured reel)" : ""
         }`}
-        aria-pressed={state === "on" || state === "powering-on"}
+        aria-pressed={isOn}
         onPointerEnter={requestOn}
         onPointerLeave={requestOff}
         onFocus={requestOn}

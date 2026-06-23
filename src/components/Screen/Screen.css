@@ -6,22 +6,14 @@
   inset: 0;
   width: 2560px;
   height: 1440px;
-  /* The root is a full-stage layer with no clip, so it must not capture pointer
-     events outside the screen shape (only the clipped hit button below does). */
   pointer-events: none;
 }
 
-/* Clipped tube container. The reel media inside is positioned to the screen's
-   bbox so per-screen-sized encodes fill the visible hole exactly. The clip is
-   userSpaceOnUse in 2560x1440 space, so this element MUST stay at the stage
-   origin (full stage) to register. */
 .screen {
   position: absolute;
   inset: 0;
   width: 2560px;
   height: 1440px;
-  /* drop-shadow follows the clip alpha -> shaped outer glow */
-  will-change: filter;
 }
 
 .screen__tube {
@@ -29,16 +21,22 @@
   inset: 0;
   width: 2560px;
   height: 1440px;
-  /* transform-origin set inline to the screen centroid (collapse anchor) */
-  will-change: transform, filter;
-  backface-visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* The reel media (video or color bars), positioned to the screen bbox. */
+.screenRoot[data-state="on"] .screen__tube {
+  opacity: 1;
+}
+
 .screen__reel {
   position: absolute;
   overflow: hidden;
   background: #050505;
+}
+
+.screenRoot[data-state="off"] .screen__reel {
+  background: transparent;
 }
 
 .screen__reel video {
@@ -47,15 +45,7 @@
   object-fit: cover;
 }
 
-/* Decoded first frame must not leak when the screen FSM is off — the dive
-   timeline can temporarily override tube opacity during the zoom. */
-.screenRoot[data-state="off"] .screen__reel,
-.screenRoot[data-state="powering-off"] .screen__reel {
-  background: transparent;
-}
-
-.screenRoot[data-state="off"] .screen__reel video,
-.screenRoot[data-state="powering-off"] .screen__reel video {
+.screenRoot[data-state="off"] .screen__reel video {
   visibility: hidden;
 }
 
@@ -67,31 +57,6 @@
   object-fit: cover;
 }
 
-/* White power-on flash. */
-.screen__flash {
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  opacity: 0;
-  pointer-events: none;
-  mix-blend-mode: screen;
-}
-
-/* Bright collapsing dot for power-off. */
-.screen__dot {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 24px 8px rgba(255, 255, 255, 0.9);
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Interaction surface: focusable, covers the screen bbox for hover/tap/focus.
-   Re-enables pointer events (the root disables them) and is clip-pathed so only
-   the screen shape is interactive. */
 .screen__hit {
   position: absolute;
   background: transparent;
