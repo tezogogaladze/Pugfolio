@@ -26,10 +26,12 @@ interface ScreenProps {
   reducedMotion: boolean;
   /** Global sound state — when true, this screen's video is unmuted. */
   soundOn: boolean;
+  /** Render order, used to stagger video warm-up so loads don't all collide. */
+  index: number;
 }
 
 const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
-  { config, heroInView, reducedMotion, soundOn },
+  { config, heroInView, reducedMotion, soundOn, index },
   ref
 ) {
   const { state, requestOn, requestOff, animDone } = useScreenMachine("off");
@@ -176,6 +178,33 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
     }
   }, [state, reducedMotion, box.cx, box.cy, animDone]);
 
+  const hasVideo = Boolean(config.videoSrc) && !videoFailed;
+
+  // Warm-up: while the hero is in view, fetch + decode each reel's first frame
+  // so hover plays instantly with no black flash. We DON'T play here — only the
+  // hovered screen plays — so we never decode/play all six at once. Staggered by
+  // render order (featured center first) to avoid a load stampede on page load.
+  const warmedRef = useRef(false);
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !hasVideo || warmedRef.current || !heroInView) return;
+    warmedRef.current = true;
+    const delay = config.featured ? 0 : (index + 1) * 180;
+    const id = window.setTimeout(() => {
+      v.preload = "auto";
+      // Only kick a load if nothing has started yet — if the user already
+      // hovered, play() is loading it and we must not reset mid-playback.
+      if (v.readyState === 0) {
+        try {
+          v.load();
+        } catch {
+          /* ignore */
+        }
+      }
+    }, delay);
+    return () => window.clearTimeout(id);
+  }, [heroInView, hasVideo, config.featured, index]);
+
   // Video play gating: only when active AND hero in view.
   useEffect(() => {
     const v = videoRef.current;
@@ -190,8 +219,6 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
       v.pause();
     }
   }, [state, heroInView, config.videoSrc]);
-
-  const hasVideo = Boolean(config.videoSrc) && !videoFailed;
 
   // Mute follows the global sound toggle. Set via the property (not just the
   // attribute, which React doesn't reliably reflect onto the media element).

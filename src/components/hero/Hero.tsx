@@ -43,7 +43,7 @@ export default function Hero({
           alt="A dim, overgrown room with six dead CRT televisions."
           draggable={false}
         />
-        {SCREENS.map((config) => (
+        {SCREENS.map((config, index) => (
           <Screen
             key={config.id}
             ref={config.id === CENTER_SCREEN_ID ? centerRef : undefined}
@@ -51,6 +51,7 @@ export default function Hero({
             heroInView={heroInView}
             reducedMotion={reducedMotion}
             soundOn={soundOn}
+            index={index}
           />
         ))}
 
