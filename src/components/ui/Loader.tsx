@@ -34,7 +34,7 @@ export default function Loader({ progress, hiding }: LoaderProps) {
     >
       <div className="loader__crt" aria-hidden="true" />
       <div className="loader__terminal">
-        <p className="loader__header">ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL</p>
+        <p className="loader__header">PUG INDUSTRIES (TM) TERMLINK PROTOCOL</p>
         <p className="loader__line">
           <span className="loader__chevron">{">"}</span> {status}
           <span className="loader__cursor">_</span>
