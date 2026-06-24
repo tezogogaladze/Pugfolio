@@ -8,7 +8,9 @@ export default function AboutSection({
   return (
     <>
       {section.eyebrow && <p className="section__eyebrow">{section.eyebrow}</p>}
-      <h2 className="section__title">{section.title}</h2>
+      {section.title ? (
+        <h2 className="section__title">{section.title}</h2>
+      ) : null}
       <div className="section__body">
         {section.body.map((line, i) => (
           <p key={i}>{line}</p>

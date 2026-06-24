@@ -3,6 +3,7 @@ import { CLIP_PATHS } from "@/components/crt/ClipDefs";
 import { CENTER_SCREEN_ID } from "@/data/screens";
 import { SECTIONS } from "@/data/sections";
 import AboutSection from "@/components/sections/AboutSection";
+import "@/components/sections/sections.css";
 import "./HeroReveal.css";
 
 interface HeroRevealProps {

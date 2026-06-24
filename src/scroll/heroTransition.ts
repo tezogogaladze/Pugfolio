@@ -37,7 +37,6 @@ const easeZoom1 = gsap.parseEase("power2.in");
 const easeZoom2 = gsap.parseEase("power1.in");
 const easeGrow = gsap.parseEase("power2.in");
 const easeScroll = gsap.parseEase("power1.inOut");
-const easeDiveLayout = gsap.parseEase("power2.out");
 
 function centerZoom(): number {
   const box = measureScreen(CENTER_SCREEN_ID);
@@ -134,7 +133,6 @@ function render(
   let revealOpacity: number;
   let tubeOpacity: number;
   let scrollY = L.scrollStart;
-  let diveP = 0;
 
   if (progress <= PHASE1) {
     // Phase 1 — subtle room zoom only.
@@ -155,7 +153,6 @@ function render(
 
     const scrollT = easeScroll(p2);
     scrollY = L.scrollStart + (L.scrollEnd - L.scrollStart) * scrollT;
-    diveP = easeDiveLayout(p2);
   }
 
   gsap.set(args.zoomEl, { scale: zoom, transformOrigin: origin, force3D: true });
@@ -180,7 +177,6 @@ function render(
   );
 
   args.revealScrollEl.style.transform = `translate3d(0, ${scrollY}px, 0)`;
-  args.revealScrollEl.style.setProperty("--dive-p", String(diveP));
   args.revealRootEl.style.opacity = String(revealOpacity);
 
   const atRest = progress <= HERO_REST || progress >= 0.995;
@@ -288,7 +284,6 @@ export function setupHeroTransition(args: HeroTransitionArgs): () => void {
     args.revealPathEl.removeAttribute("transform");
     args.revealContentEl.style.cssText = "";
     args.revealScrollEl.style.transform = "";
-    args.revealScrollEl.style.removeProperty("--dive-p");
     args.revealRootEl.style.opacity = "";
     if (args.centerTubeEl) gsap.set(args.centerTubeEl, { clearProps: "opacity" });
     if (args.hintEl) args.hintEl.style.opacity = "";
