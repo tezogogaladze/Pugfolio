@@ -3,12 +3,12 @@ export function isVideoBuffered(v: HTMLVideoElement): boolean {
   return v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
 }
 
-/** Start loading and resolve once the reel can play without stalling. */
+/** Start loading and resolve once the reel can start playback (`canplay`). */
 export function bufferVideo(
   v: HTMLVideoElement,
   signal?: AbortSignal
 ): Promise<void> {
-  if (v.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
+  if (v.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
     return Promise.resolve();
   }
 
@@ -17,7 +17,7 @@ export function bufferVideo(
     const finish = () => {
       if (settled) return;
       settled = true;
-      v.removeEventListener("canplaythrough", finish);
+      v.removeEventListener("canplay", finish);
       v.removeEventListener("error", finish);
       resolve();
     };
@@ -29,7 +29,7 @@ export function bufferVideo(
     signal?.addEventListener("abort", finish, { once: true });
 
     v.preload = "auto";
-    v.addEventListener("canplaythrough", finish);
+    v.addEventListener("canplay", finish);
     v.addEventListener("error", finish);
     try {
       v.load();
