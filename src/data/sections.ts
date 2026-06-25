@@ -7,17 +7,15 @@
 
 export type SectionType =
   | "about"
-  | "work-grid"
+  | "process"
   | "showreel"
   | "clients"
   | "contact";
 
-export interface WorkItem {
+export interface ProcessStep {
   id: string;
   title: string;
-  role: string;
-  thumb?: string | null;
-  videoSrc?: string | null;
+  description: string;
 }
 
 export interface BaseSection {
@@ -34,9 +32,9 @@ export interface AboutSection extends BaseSection {
   body: string[];
 }
 
-export interface WorkGridSection extends BaseSection {
-  type: "work-grid";
-  items: WorkItem[];
+export interface ProcessSection extends BaseSection {
+  type: "process";
+  steps: ProcessStep[];
 }
 
 export interface ShowreelSection extends BaseSection {
@@ -49,6 +47,7 @@ export interface ClientsSection extends BaseSection {
   type: "clients";
   logos: string[];
   stats: { label: string; value: string }[];
+  backgroundSrc?: string;
 }
 
 export interface ContactSection extends BaseSection {
@@ -59,7 +58,7 @@ export interface ContactSection extends BaseSection {
 
 export type Section =
   | AboutSection
-  | WorkGridSection
+  | ProcessSection
   | ShowreelSection
   | ClientsSection
   | ContactSection;
@@ -79,53 +78,47 @@ export const SECTIONS: Section[] = [
     ],
   },
   {
-    id: "work",
-    type: "work-grid",
-    eyebrow: "Selected work",
-    title: "Reels",
-    reveal: "rise",
-    items: [
+    id: "process",
+    type: "process",
+    eyebrow: "How I work",
+    title: "My Process",
+    reveal: "none",
+    steps: [
       {
-        id: "work-1",
-        title: "Reel 01",
-        role: "Edit",
-        thumb: null,
-        videoSrc: "/assets/videos/tv-1.mp4",
+        id: "brief",
+        title: "Brief & Goals",
+        description:
+          "I review the client's brief, brand style, target audience, platform, and goal — so the edit lands the right tone: energetic, clean, cinematic, promotional, or natural UGC.",
       },
       {
-        id: "work-2",
-        title: "Reel 02",
-        role: "Edit / Color",
-        thumb: null,
-        videoSrc: "/assets/videos/tv-2.mp4",
+        id: "footage",
+        title: "Footage Selection",
+        description:
+          "I go through all provided footage and pick the strongest shots — clear expressions, product visibility, movement, and clean audio — building from the best material available.",
       },
       {
-        id: "work-3",
-        title: "Reel 03",
-        role: "Edit",
-        thumb: null,
-        videoSrc: "/assets/videos/tv-3.mp4",
+        id: "structure",
+        title: "Structure & Story",
+        description:
+          "Hook, core message, value, proof, and call to action. Even short-form needs a tight arc so viewers grasp the message fast and stay engaged.",
       },
       {
-        id: "work-4",
-        title: "Reel 04",
-        role: "Motion",
-        thumb: null,
-        videoSrc: "/assets/videos/tv-4.mp4",
+        id: "rough-cut",
+        title: "Rough Cut & Rhythm",
+        description:
+          "First assembly: cut the selects, trim dead air, and lock pacing and storytelling. Then I add movement, zooms, speed ramps, and transitions that feel dynamic without looking over-edited.",
       },
       {
-        id: "work-5",
-        title: "Reel 05",
-        role: "Edit",
-        thumb: null,
-        videoSrc: "/assets/videos/tv-5.mp4",
+        id: "captions-sound",
+        title: "Captions & Sound",
+        description:
+          "Clean captions and subtitles for silent viewing, plus music, SFX, whooshes, and subtle audio details so transitions and key moments hit harder.",
       },
       {
-        id: "work-6",
-        title: "Reel 06",
-        role: "Edit / Sound",
-        thumb: null,
-        videoSrc: "/assets/videos/tv-6.mp4",
+        id: "delivery",
+        title: "Polish & Delivery",
+        description:
+          "Color consistency, motion graphics when needed, client revisions, then platform-optimized export for TikTok, Reels, Shorts, ads, or web.",
       },
     ],
   },
@@ -144,6 +137,7 @@ export const SECTIONS: Section[] = [
     eyebrow: "Trusted by",
     title: "Clients",
     reveal: "fade",
+    backgroundSrc: "/assets/images/clients-bg.png",
     logos: [],
     stats: [
       { label: "Projects", value: "120+" },

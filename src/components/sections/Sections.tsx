@@ -1,20 +1,15 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type CSSProperties } from "react";
 import { SECTIONS, type Section } from "@/data/sections";
 import Reveal from "./Reveal";
 import "./sections.css";
 
-const AboutSection = lazy(() => import("./AboutSection"));
-const WorkGridSection = lazy(() => import("./WorkGridSection"));
+const ProcessSection = lazy(() => import("./ProcessSection"));
 const ShowreelSection = lazy(() => import("./ShowreelSection"));
 const ClientsSection = lazy(() => import("./ClientsSection"));
 const ContactSection = lazy(() => import("./ContactSection"));
 
 function SectionContent({ section }: { section: Section }) {
   switch (section.type) {
-    case "about":
-      return <AboutSection section={section} />;
-    case "work-grid":
-      return <WorkGridSection section={section} />;
     case "showreel":
       return <ShowreelSection section={section} />;
     case "clients":
@@ -33,20 +28,40 @@ export default function Sections() {
   const flowSections = SECTIONS.slice(1);
   return (
     <>
-      {flowSections.map((section) => (
-        <section
-          key={section.id}
-          id={section.id}
-          className="section"
-          aria-label={section.title}
-        >
-          <Reveal reveal={section.reveal}>
-            <Suspense fallback={null}>
-              <SectionContent section={section} />
+      {flowSections.map((section) => {
+        if (section.type === "process") {
+          return (
+            <Suspense key={section.id} fallback={null}>
+              <ProcessSection section={section} />
             </Suspense>
-          </Reveal>
-        </section>
-      ))}
+          );
+        }
+
+        const sectionClass =
+          section.type === "clients" ? "section section--clients" : "section";
+        const sectionStyle =
+          section.type === "clients" && section.backgroundSrc
+            ? ({
+                "--clients-bg": `url(${section.backgroundSrc})`,
+              } as CSSProperties)
+            : undefined;
+
+        return (
+          <section
+            key={section.id}
+            id={section.id}
+            className={sectionClass}
+            style={sectionStyle}
+            aria-label={section.title}
+          >
+            <Reveal reveal={section.reveal}>
+              <Suspense fallback={null}>
+                <SectionContent section={section} />
+              </Suspense>
+            </Reveal>
+          </section>
+        );
+      })}
     </>
   );
 }
