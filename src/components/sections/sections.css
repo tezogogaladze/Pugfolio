@@ -267,6 +267,9 @@
 /* Clients — featured projects */
 .section--clients {
   --clients-gutter: clamp(24px, 8vw, 180px);
+  --clients-veil: rgba(10, 9, 7, 0.72);
+  --clients-header: clamp(3.25rem, 11svh, 5.5rem);
+  --clients-count: 11;
   position: relative;
   isolation: isolate;
   border-top: none;
@@ -280,62 +283,84 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 0 var(--clients-gutter);
+  padding: 0;
   overflow: hidden;
-}
-
-.section--clients::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: var(--clients-bg);
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
-  opacity: 0.45;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.section--clients::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(10, 9, 7, 0.72);
-  z-index: 1;
-  pointer-events: none;
 }
 
 .section--clients > .reveal {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   width: 100%;
   height: 100%;
   min-height: 0;
 }
 
 .clients {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  width: 100%;
   height: 100%;
   min-height: 0;
 }
 
+/* Full-viewport art — always cover, never scales with content height. */
+.clients__bg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 100%;
+  min-height: 100%;
+  transform: translateX(-50%);
+  background-image: var(--clients-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.clients__frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.clients__veil {
+  position: absolute;
+  inset: 0;
+  background: var(--clients-veil);
+  opacity: 1;
+  transition: opacity 0.45s ease;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .clients__featured {
-  flex: 0 0 auto;
+  position: relative;
+  flex: 0 0 var(--clients-header);
+  display: flex;
+  align-items: center;
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 3.8vh, 2.5rem);
+  font-size: clamp(1.25rem, 3.6svh, 2.5rem);
   line-height: 1;
   letter-spacing: 0.02em;
   color: var(--ink);
   margin: 0;
-  padding: clamp(0.65rem, 1.8vh, 1.1rem) 0;
+  padding: 0 var(--clients-gutter);
+  z-index: 1;
+}
+
+.clients__featured::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--clients-veil);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .clients__projects {
@@ -344,16 +369,19 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: calc(100% - var(--clients-header));
   margin: 0;
-  margin-left: calc(-1 * var(--clients-gutter));
   padding: 0;
-  width: calc(100% + 2 * var(--clients-gutter));
+  width: 100%;
   border-top: 1px solid #feb248;
+  position: relative;
+  z-index: 1;
 }
 
 .clients__project-row {
   flex: 1 1 0;
   min-height: 0;
+  max-height: calc((100svh - var(--clients-header)) / var(--clients-count));
   display: flex;
 }
 
@@ -373,18 +401,6 @@
   min-height: 0;
 }
 
-.clients__project-bg {
-  position: absolute;
-  inset: 0;
-  background-image: var(--clients-bg);
-  background-repeat: no-repeat;
-  background-position: center 0;
-  opacity: 0;
-  transition: opacity 0.45s ease;
-  z-index: 0;
-  pointer-events: none;
-}
-
 .clients__project-title {
   position: relative;
   z-index: 1;
@@ -394,7 +410,10 @@
   overflow: hidden;
   width: 100%;
   font-family: var(--font-display);
-  font-size: clamp(0.95rem, 2.05vh, 1.55rem);
+  font-size: min(
+    1.55rem,
+    calc((100svh - var(--clients-header)) / var(--clients-count) * 0.42)
+  );
   line-height: 1.12;
   letter-spacing: 0.02em;
   color: var(--ink);
@@ -404,9 +423,9 @@
     text-shadow 0.35s ease;
 }
 
-.clients__project:hover .clients__project-bg,
-.clients__project:focus-visible .clients__project-bg {
-  opacity: 1;
+.clients__project:hover .clients__veil,
+.clients__project:focus-visible .clients__veil {
+  opacity: 0;
 }
 
 .clients__project:hover .clients__project-title,
@@ -425,7 +444,7 @@
   outline-offset: -2px;
 }
 
-.rm .clients__project-bg,
+.rm .clients__veil,
 .rm .clients__project-title {
   transition: none;
 }
