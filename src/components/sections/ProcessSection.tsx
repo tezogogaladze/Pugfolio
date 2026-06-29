@@ -4,7 +4,10 @@ import { ScrollSmoother } from "@/scroll/gsapConfig";
 import { setupProcessScroll } from "@/scroll/processScroll";
 import { refreshScroll } from "@/scroll/smootherSingleton";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
+
+const MAX_MOUNT_ATTEMPTS = 120;
+const SMOOTHER_WAIT = 90;
 
 export default function ProcessSection({
   section,
@@ -16,8 +19,7 @@ export default function ProcessSection({
   const trackRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLSpanElement>(null);
   const reducedMotion = useReducedMotion();
-  const isMobile = useIsMobile();
-  const horizontal = !reducedMotion && !isMobile;
+  const horizontal = useHorizontalScroll();
   const [activeStep, setActiveStep] = useState(0);
 
   useLayoutEffect(() => {
@@ -32,12 +34,29 @@ export default function ProcessSection({
     let cleanup: (() => void) | undefined;
     let raf = 0;
     let resizeObserver: ResizeObserver | undefined;
+    let mountAttempts = 0;
+    let smootherWait = 0;
 
     const mount = () => {
       if (cancelled) return;
 
       const smoother = ScrollSmoother.get();
+      const smootherExpected = Boolean(document.getElementById("smooth-wrapper"));
+      if (smootherExpected && !smoother) {
+        smootherWait += 1;
+        if (smootherWait <= SMOOTHER_WAIT) {
+          raf = requestAnimationFrame(mount);
+          return;
+        }
+      }
+
       const useSmoother = Boolean(smoother);
+      const distance = trackEl.scrollWidth - viewportEl.clientWidth;
+      if (distance <= 0 && mountAttempts < MAX_MOUNT_ATTEMPTS) {
+        mountAttempts += 1;
+        raf = requestAnimationFrame(mount);
+        return;
+      }
 
       cleanup?.();
       cleanup = setupProcessScroll({
@@ -66,12 +85,22 @@ export default function ProcessSection({
     }
 
     document.fonts?.ready.then(() => {
-      if (!cancelled) refreshScroll();
+      if (!cancelled) {
+        refreshScroll();
+        mountAttempts = 0;
+        raf = requestAnimationFrame(mount);
+      }
     });
+
+    const onLoad = () => {
+      if (!cancelled) refreshScroll();
+    };
+    window.addEventListener("load", onLoad);
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
+      window.removeEventListener("load", onLoad);
       resizeObserver?.disconnect();
       cleanup?.();
     };

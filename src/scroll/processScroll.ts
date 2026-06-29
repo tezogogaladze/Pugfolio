@@ -22,8 +22,6 @@ function scrollDistance(viewportEl: HTMLElement, trackEl: HTMLElement): number {
  * user scrolls vertically — the site's only sideways scroll moment.
  */
 export function setupProcessScroll(args: ProcessScrollArgs): () => void {
-  if (args.reducedMotion) return () => {};
-
   let lastStep = -1;
 
   const tween = gsap.to(args.trackEl, {
@@ -38,7 +36,7 @@ export function setupProcessScroll(args: ProcessScrollArgs): () => void {
       pinReparent: true,
       ...(args.useSmoother ? {} : { pinType: "fixed" as const }),
       pinSpacing: true,
-      scrub: args.useSmoother ? true : 0.85,
+      scrub: args.reducedMotion ? 0.35 : args.useSmoother ? true : 0.85,
       anticipatePin: 1,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
