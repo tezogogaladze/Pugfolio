@@ -69,24 +69,14 @@
   bottom: 4vh;
   transform: translateX(-50%);
   z-index: 7;
-  font-size: 0.8rem;
-  letter-spacing: 0.32em;
+  margin: 0;
+  padding: 0.7rem 1.35rem;
+  font-family: var(--font-terminal);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--ink-dim);
+  color: var(--ink);
+  background: rgba(35, 32, 28, 0.69);
   pointer-events: none;
-  animation: hint-pulse 2.6s ease-in-out infinite;
-}
-
-.rm .hero__hint {
-  animation: none;
-}
-
-@keyframes hint-pulse {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 0.9;
-  }
 }
