@@ -73,8 +73,8 @@ export const SECTIONS: Section[] = [
     reveal: "rise",
     body: [
       "Hi! I am Nika.",
-      "I am a Video Editor. For five years I've been creating content in Premiere Pro, After Effects, and CapCut — YouTube, TikTok, Instagram, podcasts, UGC, and brand campaigns. I focus on pacing, storytelling, and edits that look professional and hold attention on social.",
-      "I've worked with brands and creative projects across different styles — multicam, color correction, sound cleanup, short-form optimization, and polished delivery on deadline. I work remotely, follow briefs closely, and communicate clearly throughout. If you're looking for someone to help your videos perform and grow online, I'd love to connect.",
+      "I am a Video Editor. For five years I've been creating content in Premiere Pro, After Effects, and CapCut — YouTube, TikTok, Instagram, podcasts, UGC, and brand campaigns. I focus on pacing, storytelling, and edits that look professional and hold attention on social media.",
+      "I've worked with brands and creative projects across different styles — multicam, color correction, sound cleanup, short-form optimization, and polished delivery on deadline. I work remotely, follow briefs closely, and communicate clearly throughout the process. If you're looking for someone to help your videos perform and grow online, I'd love to connect.",
     ],
   },
   {
