@@ -137,7 +137,7 @@ export const SECTIONS: Section[] = [
     eyebrow: "Trusted by",
     title: "Clients",
     reveal: "fade",
-    backgroundSrc: "/assets/images/clients-bg.png",
+    backgroundSrc: "/assets/images/clients-bg.jpeg",
     logos: [],
     stats: [
       { label: "Projects", value: "120+" },
