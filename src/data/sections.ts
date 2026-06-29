@@ -32,17 +32,25 @@ export interface ProcessSection extends BaseSection {
   steps: ProcessStep[];
 }
 
+export interface FeaturedProject {
+  id: string;
+  title: string;
+  /** YouTube / Vimeo embed URL — null until supplied. */
+  embedUrl: string | null;
+}
+
 export interface ClientsSection extends BaseSection {
   type: "clients";
-  logos: string[];
-  stats: { label: string; value: string }[];
+  projects: FeaturedProject[];
   backgroundSrc?: string;
 }
 
 export interface ContactSection extends BaseSection {
   type: "contact";
+  stats: { label: string; value: string }[];
   email: string;
   socials: { label: string; href: string }[];
+  credit: { name: string; href: string };
 }
 
 export type Section =
@@ -63,7 +71,7 @@ export const SITE_NAV: NavItem[] = [
   { id: "hero", label: "Home" },
   { id: "about", label: "About" },
   { id: "process", label: "My Process" },
-  { id: "clients", label: "Clients" },
+  { id: "clients", label: "Projects" },
   { id: "contact", label: "Contact" },
 ];
 
@@ -129,15 +137,65 @@ export const SECTIONS: Section[] = [
   {
     id: "clients",
     type: "clients",
-    eyebrow: "Trusted by",
     title: "Clients",
     reveal: "fade",
     backgroundSrc: "/assets/images/clients-bg.jpeg",
-    logos: [],
-    stats: [
-      { label: "Projects", value: "120+" },
-      { label: "Years", value: "8" },
-      { label: "Awards", value: "5" },
+    projects: [
+      {
+        id: "battle",
+        title: "Battle ?",
+        embedUrl: "https://www.youtube.com/embed/v1Q1PsOQCuk",
+      },
+      {
+        id: "taha-bxnny",
+        title: "TAHA x BXNNY ❘ ROUND 3 vs JJ x MARLO (SEASON 1)",
+        embedUrl: "https://www.youtube.com/embed/qiQVE0DnWXc",
+      },
+      {
+        id: "kami-moska",
+        title: "KAMI x MOSKA ❘ ROUND 3 vs TOLO x ANGELEYE (SEASON 1)",
+        embedUrl: "https://www.youtube.com/embed/nR7zIgzczxk",
+      },
+      {
+        id: "qa-kami",
+        title: "Q&A ✦ KAMI / MOSKA / YOUNG MIC / GROTASK / TYRO / MVYKL",
+        embedUrl: "https://www.youtube.com/embed/RvNzXzZIYfg",
+      },
+      {
+        id: "pvpflow-teaser",
+        title: "PVPFLOW SKYRESS vs KAMI (FINAL TEASER)",
+        embedUrl: "https://www.youtube.com/embed/rQ_OLBHIE5s",
+      },
+      {
+        id: "beauty-product",
+        title: "30 Seconds - Beauty Product",
+        embedUrl: "https://streamable.com/e/kzw6x4",
+      },
+      {
+        id: "mushroom-coffee",
+        title: "Mushroom Coffee UGC",
+        embedUrl: "https://streamable.com/e/ej684a",
+      },
+      {
+        id: "music-show-trailer",
+        title: "Music Show Trailer",
+        embedUrl: "https://streamable.com/e/od9y1v",
+      },
+      {
+        id: "hip-hop-trailer",
+        title: "Hip-Hop Competition Trailer",
+        embedUrl: "https://streamable.com/e/6zzkpl",
+      },
+      {
+        id: "tiktok-content",
+        title: "Tiktok Content",
+        embedUrl: "https://streamable.com/e/kf1byz",
+      },
+      {
+        id: "wemby-motion",
+        title: "Wemby Motion Graphic",
+        embedUrl: "https://streamable.com/e/mpe629",
+      },
     ],
   },
   {
@@ -146,11 +204,21 @@ export const SECTIONS: Section[] = [
     eyebrow: "Say hello",
     title: "Let's make something",
     reveal: "rise",
-    email: "hello@example.com",
-    socials: [
-      { label: "Instagram", href: "#" },
-      { label: "Vimeo", href: "#" },
-      { label: "LinkedIn", href: "#" },
+    stats: [
+      { value: "120+", label: "Projects delivered" },
+      { value: "5+", label: "Years in the edit" },
+      { value: "40+", label: "Clients & brands" },
     ],
+    email: "svansky2@gmail.com",
+    socials: [
+      {
+        label: "LinkedIn",
+        href: "https://www.linkedin.com/in/nick-k-42a531128/",
+      },
+    ],
+    credit: {
+      name: "Tezo Gogaladze",
+      href: "https://www.tezogogaladze.com/",
+    },
   },
 ];

@@ -35,7 +35,11 @@ export default function Sections() {
         }
 
         const sectionClass =
-          section.type === "clients" ? "section section--clients" : "section";
+          section.type === "clients"
+            ? "section section--clients"
+            : section.type === "contact"
+              ? "section section--contact"
+              : "section";
         const sectionStyle =
           section.type === "clients" && section.backgroundSrc
             ? ({
