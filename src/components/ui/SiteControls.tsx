@@ -14,8 +14,8 @@ export default function SiteControls({
 }: SiteControlsProps) {
   return (
     <div className="siteControls">
-      <SectionMenu />
       <SoundToggle on={soundOn} onToggle={onSoundToggle} />
+      <SectionMenu />
     </div>
   );
 }
