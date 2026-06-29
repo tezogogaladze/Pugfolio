@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Hero from "@/components/hero/Hero";
 import Sections from "@/components/sections/Sections";
-import SoundToggle from "@/components/ui/SoundToggle";
+import SiteControls from "@/components/ui/SiteControls";
 import Loader from "@/components/ui/Loader";
 import ScrollRoot from "@/components/ScrollRoot";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -164,7 +164,10 @@ export default function App() {
         />
       </ScrollRoot>
       {interactive && (
-        <SoundToggle on={soundOn} onToggle={() => setSoundOn((v) => !v)} />
+        <SiteControls
+          soundOn={soundOn}
+          onSoundToggle={() => setSoundOn((v) => !v)}
+        />
       )}
       {showLoader && <Loader progress={progress} hiding={readyToShow} />}
     </>

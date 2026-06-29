@@ -23,7 +23,7 @@ export interface ScreenHandle {
 interface ScreenProps {
   config: ScreenConfig;
   reducedMotion: boolean;
-  /** Global sound state — when true, reel audio is unmuted. */
+  /** Global sound state — when true, reel + TV click SFX are audible. */
   soundOn: boolean;
   /** Disabled on mobile/touch — falls back to the cheap color-bars reel. */
   enableVideo: boolean;
@@ -52,13 +52,13 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>(function Screen(
   const hasVideo = enableVideo && Boolean(config.videoSrc) && !videoFailed;
   const isOn = state === "on";
 
-  // TV power clicks — always audible on interactive (independent of reel mute).
+  // TV power clicks — only when global sound is on.
   useEffect(() => {
-    if (!enableVideo || prevState.current === state) return;
+    if (!enableVideo || !soundOn || prevState.current === state) return;
     if (state === "on") playTvPowerSfx("on");
     if (state === "off" && prevState.current === "on") playTvPowerSfx("off");
     prevState.current = state;
-  }, [state, enableVideo]);
+  }, [state, soundOn, enableVideo]);
 
   // Buffer the reel on mount so the loader can wait on real <video> elements.
   useEffect(() => {

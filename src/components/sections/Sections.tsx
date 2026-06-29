@@ -4,14 +4,11 @@ import Reveal from "./Reveal";
 import "./sections.css";
 
 const ProcessSection = lazy(() => import("./ProcessSection"));
-const ShowreelSection = lazy(() => import("./ShowreelSection"));
 const ClientsSection = lazy(() => import("./ClientsSection"));
 const ContactSection = lazy(() => import("./ContactSection"));
 
 function SectionContent({ section }: { section: Section }) {
   switch (section.type) {
-    case "showreel":
-      return <ShowreelSection section={section} />;
     case "clients":
       return <ClientsSection section={section} />;
     case "contact":

@@ -1,0 +1,99 @@
+.siteControls {
+  position: fixed;
+  top: clamp(16px, 2.4vw, 32px);
+  right: clamp(16px, 2.4vw, 32px);
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ctrlBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 9, 7, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 0;
+  transition: color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.ctrlBtn:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(10, 9, 7, 0.7);
+}
+
+.ctrlBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ctrlBtn[data-on="true"] {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.ctrlBtn svg {
+  display: block;
+}
+
+.sectionMenu {
+  position: relative;
+}
+
+.sectionMenu__panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 11.5rem;
+  padding: 0.35rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 9, 7, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.sectionMenu__panel[hidden] {
+  display: none;
+}
+
+.sectionMenu__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sectionMenu__link {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.sectionMenu__link:hover,
+.sectionMenu__link:focus-visible {
+  color: var(--accent);
+  background: rgba(255, 179, 71, 0.08);
+}
+
+.sectionMenu__link:focus-visible {
+  outline: none;
+}

@@ -5,12 +5,7 @@
  * is "inside the TV" and below the fold.
  */
 
-export type SectionType =
-  | "about"
-  | "process"
-  | "showreel"
-  | "clients"
-  | "contact";
+export type SectionType = "about" | "process" | "clients" | "contact";
 
 export interface ProcessStep {
   id: string;
@@ -37,12 +32,6 @@ export interface ProcessSection extends BaseSection {
   steps: ProcessStep[];
 }
 
-export interface ShowreelSection extends BaseSection {
-  type: "showreel";
-  videoSrc?: string | null;
-  poster?: string | null;
-}
-
 export interface ClientsSection extends BaseSection {
   type: "clients";
   logos: string[];
@@ -59,9 +48,24 @@ export interface ContactSection extends BaseSection {
 export type Section =
   | AboutSection
   | ProcessSection
-  | ShowreelSection
   | ClientsSection
   | ContactSection;
+
+/** Jump-menu targets — maps 1:1 to the five site sections. */
+export type SectionNavId = "hero" | "about" | "process" | "clients" | "contact";
+
+export interface NavItem {
+  id: SectionNavId;
+  label: string;
+}
+
+export const SITE_NAV: NavItem[] = [
+  { id: "hero", label: "Home" },
+  { id: "about", label: "About" },
+  { id: "process", label: "My Process" },
+  { id: "clients", label: "Clients" },
+  { id: "contact", label: "Contact" },
+];
 
 /** PLACEHOLDER content — swap wholesale when brand + copy arrive. */
 export const SECTIONS: Section[] = [
@@ -121,15 +125,6 @@ export const SECTIONS: Section[] = [
           "Color consistency, motion graphics when needed, client revisions, then platform-optimized export for TikTok, Reels, Shorts, ads, or web.",
       },
     ],
-  },
-  {
-    id: "showreel",
-    type: "showreel",
-    eyebrow: "Featured",
-    title: "2026 Showreel",
-    reveal: "fade",
-    videoSrc: "/assets/videos/tv-5.mp4",
-    poster: null,
   },
   {
     id: "clients",

@@ -28,14 +28,13 @@ function SpeakerOff() {
 }
 
 /**
- * Global sound on/off control. Default is off (videos muted). Lives outside the
- * ScrollSmoother content so position:fixed sticks to the viewport.
+ * Global sound on/off control. Default is off (videos muted).
  */
 export default function SoundToggle({ on, onToggle }: SoundToggleProps) {
   return (
     <button
       type="button"
-      className="soundToggle"
+      className="ctrlBtn soundToggle"
       onClick={onToggle}
       aria-pressed={on}
       aria-label={on ? "Turn sound off" : "Turn sound on"}
@@ -43,7 +42,6 @@ export default function SoundToggle({ on, onToggle }: SoundToggleProps) {
       data-on={on}
     >
       {on ? <SpeakerOn /> : <SpeakerOff />}
-      <span className="soundToggle__label">{on ? "Sound on" : "Sound off"}</span>
     </button>
   );
 }
