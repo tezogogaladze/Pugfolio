@@ -19,9 +19,8 @@ function SectionContent({ section }: { section: Section }) {
 }
 
 export default function Sections() {
-  // Section 1 (About) is owned by the hero dive — it is revealed and scrolled
-  // through inside the CRT during the pinned transition, so it must NOT render
-  // again here (that caused the duplicate Section 2 + the room-coloured gap).
+  // About is owned by the hero — revealed in the CRT dive on desktop and
+  // overlaid on the static room image on mobile; never duplicated here.
   const flowSections = SECTIONS.slice(1);
   return (
     <>

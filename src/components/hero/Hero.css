@@ -7,9 +7,24 @@
   background: var(--bg-room);
 }
 
-/* Lightweight static room for mobile/touch: two cover images, no stage
-   transform and no filtered/blended per-screen layers. Both assets are
-   full-frame 16:9 so object-fit:cover keeps them aligned. */
+/* Mobile: room image + About copy in one tall section (desktop uses dive). */
+.hero--static {
+  min-height: 100vh;
+  min-height: 100svh;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.hero__static-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Two cover images, no stage transform. Full-frame 16:9 — cover keeps aligned. */
 .hero--static .hero__static-img {
   position: absolute;
   inset: 0;
@@ -23,6 +38,43 @@
 
 .hero--static .hero__static-glass {
   pointer-events: none;
+}
+
+.hero__static-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.04) 0%,
+    rgba(0, 0, 0, 0.18) 38%,
+    rgba(12, 11, 10, 0.8) 72%,
+    rgba(12, 11, 10, 0.94) 100%
+  );
+}
+
+.hero__static-about {
+  position: relative;
+  z-index: 6;
+  width: 100%;
+  padding: min(36vh, 260px) clamp(20px, 6vw, 40px) clamp(32px, 9vw, 56px);
+}
+
+.hero--static .hero__static-about .section__body {
+  max-width: 52ch;
+}
+
+.hero--static .hero__static-about .section__body p:first-child {
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 5.2vw, 2.1rem);
+  font-weight: 800;
+  line-height: 1.05;
+  margin-bottom: 1.25rem;
+}
+
+.hero--static .hero__static-about .section__body p:last-child {
+  margin-bottom: 0;
 }
 
 /* Glass top layer — mirrors the room's cover transform, sits above the reveal

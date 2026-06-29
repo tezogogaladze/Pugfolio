@@ -4,11 +4,14 @@ import ClipDefs from "@/components/crt/ClipDefs";
 import Screen from "@/components/Screen/Screen";
 import HeroReveal from "@/components/hero/HeroReveal";
 import { useStageScale } from "@/hooks/useStageScale";
+import AboutSection from "@/components/sections/AboutSection";
 import {
   SCREENS,
   getBackgroundSrc,
   OVERLAY_SRC,
 } from "@/data/screens";
+import { SECTIONS } from "@/data/sections";
+import "@/components/sections/sections.css";
 import "./Hero.css";
 
 interface HeroProps {
@@ -47,20 +50,28 @@ export default function Hero({
   const { scale, offsetX, offsetY } = useStageScale();
 
   if (!interactive) {
+    const about = SECTIONS[0];
     return (
       <section className="hero hero--static" aria-label="The CRT Room">
-        <div
-          className="hero__static-img"
-          role="img"
-          aria-label="A dim, overgrown room with six dead CRT televisions."
-          style={{ backgroundImage: `url(${getBackgroundSrc()})` }}
-        />
-        <div
-          className="hero__static-img hero__static-glass"
-          aria-hidden="true"
-          style={{ backgroundImage: `url(${OVERLAY_SRC})` }}
-        />
-        <div className="hero__ambience" />
+        <div className="hero__static-bg" aria-hidden="true">
+          <div
+            className="hero__static-img"
+            role="img"
+            aria-label="A dim, overgrown room with six dead CRT televisions."
+            style={{ backgroundImage: `url(${getBackgroundSrc()})` }}
+          />
+          <div
+            className="hero__static-img hero__static-glass"
+            style={{ backgroundImage: `url(${OVERLAY_SRC})` }}
+          />
+          <div className="hero__static-scrim" />
+          <div className="hero__ambience" />
+        </div>
+        {about.type === "about" && (
+          <div id="about" className="hero__static-about">
+            <AboutSection section={about} />
+          </div>
+        )}
       </section>
     );
   }

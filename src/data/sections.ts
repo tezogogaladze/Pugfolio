@@ -212,8 +212,8 @@ export const SECTIONS: Section[] = [
     email: "svansky2@gmail.com",
     socials: [
       {
-        label: "LinkedIn",
-        href: "https://www.linkedin.com/in/nick-k-42a531128/",
+        label: "linkedin.com/in/nkvts",
+        href: "https://www.linkedin.com/in/nkvts",
       },
     ],
     credit: {
