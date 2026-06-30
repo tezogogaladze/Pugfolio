@@ -514,7 +514,7 @@
 .contact__credit {
   align-self: flex-end;
   margin: clamp(2rem, 6vh, 4rem) 0 0;
-  font-size: 0.74rem;
+  font-size: 0.69rem;
   letter-spacing: 0.07em;
   line-height: 1.45;
   color: var(--ink-dim);
