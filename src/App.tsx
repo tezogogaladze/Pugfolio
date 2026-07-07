@@ -10,6 +10,8 @@ import { usePreloadAssets } from "@/hooks/usePreloadAssets";
 import { refreshScroll, useScrollSystem } from "@/scroll/useScrollSystem";
 import { preloadTvPowerSfx } from "@/audio/tvPowerSfx";
 import { CENTER_SCREEN_ID, SCREENS, OVERLAY_SRC, getBackgroundSrc } from "@/data/screens";
+import { Analytics } from "@vercel/analytics/react";
+
 
 const IMAGE_URLS = [getBackgroundSrc(), OVERLAY_SRC];
 const HERO_VIDEO_COUNT = SCREENS.filter((s) => Boolean(s.videoSrc)).length;
@@ -170,6 +172,7 @@ export default function App() {
         />
       )}
       {showLoader && <Loader progress={progress} hiding={readyToShow} />}
+      <Analytics />
     </>
   );
 }
